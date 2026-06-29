@@ -4,6 +4,7 @@ Dead-Simple Machine Provisioning
 ## Structure
 The standard config structure and bonus `botfiles` that include agent skill and config information.
 
+```text
 ~/dotfiles/
 ├── git/
 │   └── .gitconfig
@@ -19,6 +20,7 @@ The standard config structure and bonus `botfiles` that include agent skill and 
             └── skills/
                 ├── triage.md
                 └── helics-core.md
+```
 
 ## Bootstrap
 
