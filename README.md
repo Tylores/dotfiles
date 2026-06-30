@@ -6,6 +6,10 @@ The standard config structure and bonus `botfiles` that include agent skill and 
 
 ```text
 ~/dotfiles/
+├── bin/
+│   └── .local/
+│       └── bin/
+│           └── scry
 ├── git/
 │   └── .gitconfig
 ├── tmux/

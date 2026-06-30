@@ -11,7 +11,7 @@
 	editor = nvim --clean
 [alias]
 	st = status
-	cm = commit -m
+	cm = commit -am
 	wa = worktree add
 	wl = worktree list
 	wd = worktree remove

@@ -155,7 +155,7 @@ DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$DOTFILES_DIR"
 
 info "Applying symlink trees via GNU Stow..."
-STOW_PACKAGES=(git tmux nvim botfiles gh)
+STOW_PACKAGES=(git tmux nvim botfiles gh bin)
 
 for package in "${STOW_PACKAGES[@]}"; do
     if [ -d "$package" ]; then

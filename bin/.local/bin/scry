@@ -1,0 +1,161 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Check dependencies
+if ! command -v fzf &>/dev/null; then
+  echo "scry: fzf is not installed" >&2
+  exit 1
+fi
+if ! command -v tmux &>/dev/null; then
+  echo "scry: tmux is not installed" >&2
+  exit 1
+fi
+
+# Set search paths: use command-line arguments if provided,
+# otherwise search ~/dev (and ~/work if it exists)
+if [[ $# -gt 0 ]]; then
+  SCRY_PATHS=("$@")
+else
+  SCRY_PATHS=()
+  [[ -d "$HOME/dev" ]] && SCRY_PATHS+=("$HOME/dev")
+  [[ -d "$HOME/work" ]] && SCRY_PATHS+=("$HOME/work")
+  
+  # Fallback to ~/dev so the error message is clear if neither exists
+  if [[ ${#SCRY_PATHS[@]} -eq 0 ]]; then
+    SCRY_PATHS+=("$HOME/dev")
+  fi
+fi
+
+# Discover projects: collect full paths
+declare -a project_paths=()
+for base in "${SCRY_PATHS[@]:-}"; do
+  # Expand tilde/variables that may be in config
+  base="${base/#\~/$HOME}"
+  base="${base//\$HOME/$HOME}"
+  base="${base//\$\{HOME\}/$HOME}"
+  [[ -d "${base}" ]] || continue
+  while IFS= read -r -d '' dir; do
+    project_paths+=("${dir}")
+  done < <(find "${base}" -mindepth 1 -maxdepth 1 -type d -print0 2>/dev/null)
+done
+
+if [[ ${#project_paths[@]} -eq 0 ]]; then
+  echo "scry: no project directories found under: ${SCRY_PATHS[*]}" >&2
+  exit 0
+fi
+
+# Sanitize a name: replace non-alphanumeric/non-hyphen with _, collapse, strip leading/trailing
+sanitize() {
+  local name="$1"
+  name="${name//[^a-zA-Z0-9-]/_}"
+  # Collapse consecutive underscores
+  while [[ "${name}" == *__* ]]; do
+    name="${name//__/_}"
+  done
+  # Strip leading/trailing underscores
+  name="${name#_}"
+  name="${name%_}"
+  [[ -n "${name}" ]] || name="project"
+  echo "${name}"
+}
+
+# Build session names with collision resolution
+declare -a session_names=()
+declare -A name_count=()
+
+for path in "${project_paths[@]}"; do
+  folder="${path##*/}"
+  sname="$(sanitize "${folder}")"
+  session_names+=("${sname}")
+  name_count["${sname}"]=$(( ${name_count["${sname}"]:-0} + 1 ))
+done
+
+# Find colliding names and disambiguate
+declare -a final_names=()
+declare -A used_names=()
+
+for i in "${!project_paths[@]}"; do
+  path="${project_paths[$i]}"
+  folder="${path##*/}"
+  sname="${session_names[$i]}"
+
+  if [[ ${name_count["${sname}"]} -gt 1 ]]; then
+    # Disambiguate: use parent dir name + folder name
+    parent="${path%/*}"
+    parent_folder="${parent##*/}"
+    sparent="$(sanitize "${parent_folder}")"
+    candidate="${sparent}_${sname}"
+  else
+    candidate="${sname}"
+  fi
+
+  # Handle any remaining collisions with suffix
+  if [[ -n "${used_names["${candidate}"]:-}" ]]; then
+    suffix=2
+    while [[ -n "${used_names["${candidate}_${suffix}"]:-}" ]]; do
+      (( suffix++ ))
+    done
+    candidate="${candidate}_${suffix}"
+  fi
+
+  used_names["${candidate}"]=1
+  final_names+=("${candidate}")
+done
+
+# Build fzf input: display folder name, but track index
+# Format: "<folder_name> (<display_path>)\t<index>" — fzf shows only first field
+fzf_input=""
+declare -a folder_display=()
+for i in "${!project_paths[@]}"; do
+  folder="${project_paths[$i]##*/}"
+  display_path="${project_paths[$i]/#$HOME/\~}"
+  folder_display+=("${folder}")
+  fzf_input+="${folder} (${display_path})"$'\t'"${i}"$'\n'
+done
+
+# Sort alphabetically by folder name for display
+sorted_input="$(printf '%s' "${fzf_input}" | sort -t$'\t' -k1,1)"
+
+# Run fzf
+selected="$(printf '%s' "${sorted_input}" | fzf \
+  --with-nth=1 \
+  --delimiter=$'\t' \
+  --prompt='Project: ' \
+  --no-preview \
+  --no-multi)" || exit 0
+
+[[ -z "${selected}" ]] && exit 0
+
+# Extract index
+idx="${selected##*$'\t'}"
+target_path="${project_paths[$idx]}"
+target_session="${final_names[$idx]}"
+target_folder="${target_path##*/}"
+
+# Check if we're already in the target session
+if [[ -n "${TMUX:-}" ]]; then
+  current_session="$(tmux display-message -p '#S' 2>/dev/null || true)"
+  if [[ "${current_session}" == "${target_session}" ]]; then
+    exit 0
+  fi
+fi
+
+# Check if session exists
+session_exists=0
+if tmux has-session -t "${target_session}" 2>/dev/null; then
+  session_exists=1
+fi
+
+if [[ ${session_exists} -eq 0 ]]; then
+  # Create new session
+  tmux new-session -d -s "${target_session}" -c "${target_path}"
+  tmux set-option -t "${target_session}" mouse on
+  tmux rename-window -t "${target_session}:" "${target_folder}"
+fi
+
+# Attach or switch
+if [[ -n "${TMUX:-}" ]]; then
+  tmux switch-client -t "${target_session}"
+else
+  tmux attach-session -t "${target_session}"
+fi
