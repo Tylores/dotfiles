@@ -1,5 +1,28 @@
 [user]
 	email = tylor.slay@gmail.com
 	name = Tylores
+[credential "https://github.com"]
+	helper = !/usr/bin/gh auth git-credential
 [init]
 	defaultBranch = main
+[pull]
+	rebase = true
+[core]
+	editor = nvim --clean
+[alias]
+	st = status
+	cm = commit -m
+	wa = worktree add
+	wl = worktree list
+	wd = worktree remove
+	pretty = log --pretty=format:'%h %ad | %s%d [%an]' --graph --date=short
+	# The "WIP Savepoint" — stage everything and make a quick snapshot commit
+	save = !git add -A && git commit -m "chore: wip savepoint"
+	# The Panic Button — undo the last commit but keep your modifications staged
+	undo = reset --soft HEAD~1
+	# Push the active branch to origin without typing out its long name
+	pc = !git push origin "$(git symbolic-ref --short HEAD)"
+	# Safe force push (verifies nobody pushed upstream changes since your last fetch)
+	pf = push --force-with-lease
+	# Cleanup local branches that have already been safely merged into main
+	cleanup = !git branch --merged | grep -v '\\*\\|main\\|master\\|dev' | xargs -n 1 git branch -d

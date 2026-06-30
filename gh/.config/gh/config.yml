@@ -1,0 +1,29 @@
+# The current version of the config schema
+version: 1
+# What protocol to use when performing git operations. Supported values: ssh, https
+git_protocol: https
+# What editor gh should run when creating issues, pull requests, etc. If blank, will refer to environment.
+editor: nvim --clean
+# When to interactively prompt. This is a global config that cannot be overridden by hostname. Supported values: enabled, disabled
+prompt: enabled
+# A pager program to send command output to, e.g. "less". If blank, will refer to environment. Set the value to "cat" to disable the pager.
+pager:
+# Aliases allow you to create nicknames for gh commands
+# The path to a unix socket through which send HTTP connections. If blank, HTTP traffic will be handled by net/http.DefaultTransport.
+http_unix_socket:
+# What web browser gh should use when opening URLs. If blank, will refer to environment.
+browser:
+
+aliases:
+    # gh co 142 -> Instantly check out PR #142 into a local branch to test it
+    co: pr checkout
+    # gh prme -> List all open PRs assigned to you or waiting on your review
+    prme: pr list --assignee "@me"
+    # gh new -> Spin up a PR template, push current branch, and pop open the browser to view it
+    new: pr create --fill --web
+    # gh pv 142 -> Open a specific PR directly in your web browser
+    pv: pr view --web
+    # gh approve 142 -> Explicitly approve a PR from your terminal pane
+    approve: pr review --approve
+    # gh ship -> Squash-merge the current PR, delete the remote branch, and clear local tracking
+    ship: pr merge --squash --delete-branch
