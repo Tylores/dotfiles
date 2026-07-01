@@ -191,6 +191,8 @@ fi
 info "Preparing config directory targets..."
 mkdir -p "$HOME/.config"
 mkdir -p "$HOME/.gemini/config/skills"
+mkdir -p "$HOME/.claude"
+mkdir -p "$HOME/.copilot"
 
 # 4. Execute GNU Stow Mapping
 # Navigates to script directory to ensure stow operates on the correct relative path
@@ -317,10 +319,43 @@ setup_rust() {
     append_to_rc 'source "$HOME/.cargo/env"' "cargo env source"
 }
 
+setup_agent_clis() {
+    info "Setting up Agent CLIs (Antigravity, Claude, and Copilot)..."
+    
+    # 1. Antigravity CLI (agy)
+    if ! command -v agy >/dev/null 2>&1; then
+        info "Installing Antigravity CLI..."
+        curl -fsSL https://antigravity.google/cli/install.sh | bash || true
+    else
+        echo "  - Antigravity CLI (agy) is already installed ($(agy --version))"
+    fi
+    
+    # 2. Claude Code CLI (claude)
+    if ! command -v claude >/dev/null 2>&1; then
+        info "Installing Claude Code CLI..."
+        curl -fsSL https://claude.ai/install.sh | bash || true
+    else
+        echo "  - Claude Code CLI (claude) is already installed ($(claude --version 2>/dev/null || echo 'installed'))"
+    fi
+    
+    # 3. GitHub Copilot CLI (copilot)
+    if ! command -v copilot >/dev/null 2>&1; then
+        info "Installing GitHub Copilot CLI..."
+        if command -v npm >/dev/null 2>&1; then
+            sudo npm install -g @github/copilot || true
+        else
+            echo "  Warning: npm is required to install GitHub Copilot CLI, skipping."
+        fi
+    else
+        echo "  - GitHub Copilot CLI (copilot) is already installed ($(copilot --version 2>/dev/null || echo 'installed'))"
+    fi
+}
+
 install_fonts
 setup_go
 setup_python_tools
 setup_rust
+setup_agent_clis
 
 # 6. Suggest changing default shell to zsh if currently on something else
 if [[ "${SHELL:-}" != *"zsh"* ]]; then
