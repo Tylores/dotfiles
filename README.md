@@ -10,14 +10,19 @@ The standard config structure and bonus `botfiles` that include agent skill and 
 │   └── .local/
 │       └── bin/
 │           └── scry
+├── gh/
+│   └── .config/
+│       └── gh/
 ├── git/
 │   └── .gitconfig
-├── tmux/
-│   └── .tmux.conf
 ├── nvim/
 │   └── .config/
 │       └── nvim/
 │           └── init.lua
+├── shell/
+│   └── .zshrc
+├── tmux/
+│   └── .tmux.conf
 └── botfiles/
     └── .gemini/
         └── config/

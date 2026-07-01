@@ -56,6 +56,46 @@ check_dep() {
     fi
 }
 
+is_plugin_installed() {
+    local plugin="$1"
+    local paths=(
+        "/usr/share/$plugin/$plugin.zsh"
+        "/usr/share/zsh/plugins/$plugin/$plugin.zsh"
+        "/usr/local/share/$plugin/$plugin.zsh"
+        "/opt/homebrew/share/$plugin/$plugin.zsh"
+    )
+    for p in "${paths[@]}"; do
+        if [ -f "$p" ]; then
+            return 0
+        fi
+    done
+    return 1
+}
+
+check_zsh_plugin() {
+    local plugin="$1"
+    local brew_pkg="$2"
+    local apt_pkg="$3"
+    local pacman_pkg="$4"
+
+    local pkg=""
+    if command -v brew >/dev/null 2>&1; then
+        pkg="$brew_pkg"
+    elif command -v apt-get >/dev/null 2>&1; then
+        pkg="$apt_pkg"
+    elif command -v pacman >/dev/null 2>&1; then
+        pkg="$pacman_pkg"
+    fi
+
+    if [ -n "$pkg" ]; then
+        if ! is_plugin_installed "$plugin"; then
+            MISSING_PKGS+=("$pkg")
+        else
+            echo "  - $plugin is already installed"
+        fi
+    fi
+}
+
 check_dep "git" "git" "git" "git"
 check_dep "tmux" "tmux" "tmux" "tmux"
 check_dep "nvim" "neovim" "neovim" "neovim"
@@ -69,6 +109,9 @@ check_dep "luarocks" "luarocks" "luarocks" "luarocks"
 check_dep "fzf" "fzf" "fzf" "fzf"
 check_dep "pkg-config" "pkg-config" "pkg-config" "pkg-config"
 check_dep "gh" "gh" "gh" "github-cli"
+check_dep "zsh" "zsh" "zsh" "zsh"
+check_zsh_plugin "zsh-autosuggestions" "zsh-autosuggestions" "zsh-autosuggestions" "zsh-autosuggestions"
+check_zsh_plugin "zsh-syntax-highlighting" "zsh-syntax-highlighting" "zsh-syntax-highlighting" "zsh-syntax-highlighting"
 
 # Install fd-find / fd
 if command -v apt-get >/dev/null 2>&1; then
@@ -155,7 +198,7 @@ DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$DOTFILES_DIR"
 
 info "Applying symlink trees via GNU Stow..."
-STOW_PACKAGES=(git tmux nvim botfiles gh bin)
+STOW_PACKAGES=(git tmux nvim botfiles gh bin shell)
 
 for package in "${STOW_PACKAGES[@]}"; do
     if [ -d "$package" ]; then
@@ -199,6 +242,21 @@ install_fonts() {
     fi
 }
 
+append_to_rc() {
+    local line="$1"
+    local desc="$2"
+    
+    for rc in "$HOME/.bashrc" "$HOME/.zshrc"; do
+        if [ -f "$rc" ] || { [ "$(basename "$rc")" = ".zshrc" ] && [ -d "$DOTFILES_DIR/shell" ]; }; then
+            touch "$rc"
+            if ! grep -Fq "$line" "$rc"; then
+                echo "$line" >> "$rc"
+                info "Added $desc to $rc."
+            fi
+        fi
+    done
+}
+
 setup_go() {
     info "Setting up Go..."
     if command -v go >/dev/null 2>&1; then
@@ -218,19 +276,7 @@ setup_go() {
             sudo tar -C /usr/local -xzf "$temp_tar"
             rm -f "$temp_tar"
             
-            local shell_rc=""
-            if [[ "${SHELL:-}" == *"zsh"* ]]; then
-                shell_rc="$HOME/.zshrc"
-            else
-                shell_rc="$HOME/.bashrc"
-            fi
-            
-            if [ -f "$shell_rc" ]; then
-                if ! grep -q "/usr/local/go/bin" "$shell_rc"; then
-                    echo 'export PATH="$PATH:/usr/local/go/bin"' >> "$shell_rc"
-                    info "Added /usr/local/go/bin to $shell_rc."
-                fi
-            fi
+            append_to_rc 'export PATH="$PATH:/usr/local/go/bin"' "/usr/local/go/bin"
         else
             echo "  Warning: Failed to download Go, skipping."
             rm -f "$temp_tar"
@@ -255,19 +301,7 @@ setup_python_tools() {
         info "  - uv is already installed"
     fi
     
-    local shell_rc=""
-    if [[ "${SHELL:-}" == *"zsh"* ]]; then
-        shell_rc="$HOME/.zshrc"
-    else
-        shell_rc="$HOME/.bashrc"
-    fi
-    
-    if [ -f "$shell_rc" ]; then
-        if ! grep -q ".local/bin" "$shell_rc"; then
-            echo 'export PATH="$PATH:$HOME/.local/bin"' >> "$shell_rc"
-            info "Added ~/.local/bin to $shell_rc."
-        fi
-    fi
+    append_to_rc 'export PATH="$PATH:$HOME/.local/bin"' "~/.local/bin"
 }
 
 setup_rust() {
@@ -280,24 +314,22 @@ setup_rust() {
     info "Installing Rust via rustup..."
     curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
     
-    local shell_rc=""
-    if [[ "${SHELL:-}" == *"zsh"* ]]; then
-        shell_rc="$HOME/.zshrc"
-    else
-        shell_rc="$HOME/.bashrc"
-    fi
-    
-    if [ -f "$shell_rc" ]; then
-        if ! grep -q "cargo/env" "$shell_rc"; then
-            echo 'source "$HOME/.cargo/env"' >> "$shell_rc"
-            info "Added cargo env source to $shell_rc."
-        fi
-    fi
+    append_to_rc 'source "$HOME/.cargo/env"' "cargo env source"
 }
 
 install_fonts
 setup_go
 setup_python_tools
 setup_rust
+
+# 6. Suggest changing default shell to zsh if currently on something else
+if [[ "${SHELL:-}" != *"zsh"* ]]; then
+    if command -v zsh >/dev/null 2>&1; then
+        ZSH_PATH="$(command -v zsh)"
+        info "Note: Your default shell is not set to zsh (current shell is $SHELL)."
+        info "To set zsh as your default shell, run:"
+        echo "  chsh -s $ZSH_PATH"
+    fi
+fi
 
 info "Environment bootstrapping complete! Restart your shell session."
