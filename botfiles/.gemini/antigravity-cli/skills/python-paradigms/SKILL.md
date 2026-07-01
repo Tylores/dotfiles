@@ -1,3 +1,8 @@
+---
+name: python-paradigms
+description: Global Python Execution & Type Safety. Use when working on Python files, scripts, libraries, or virtual environments.
+---
+
 # Global Python Execution & Type Safety
 
 ## Context

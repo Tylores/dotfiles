@@ -1,3 +1,8 @@
+---
+name: git-rules
+description: Global Git Architecture & Commit Standards. Activate this skill automatically whenever a task involves staging files, creating branches, executing git commands, generating commit messages, or writing pre-commit / CI automation hooks.
+---
+
 # Global Git Architecture & Commit Standards
 
 ## Context

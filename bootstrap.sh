@@ -190,9 +190,9 @@ fi
 # 3. Create Necessary Target Directories
 info "Preparing config directory targets..."
 mkdir -p "$HOME/.config"
-mkdir -p "$HOME/.gemini/config/skills"
-mkdir -p "$HOME/.claude"
-mkdir -p "$HOME/.copilot"
+mkdir -p "$HOME/.gemini/antigravity-cli/skills"
+mkdir -p "$HOME/.claude/rules"
+mkdir -p "$HOME/.copilot/instructions"
 
 # 4. Execute GNU Stow Mapping
 # Navigates to script directory to ensure stow operates on the correct relative path

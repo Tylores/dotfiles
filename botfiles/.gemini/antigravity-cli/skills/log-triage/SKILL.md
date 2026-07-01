@@ -1,3 +1,8 @@
+---
+name: log-triage
+description: Diagnostic Log Triage & Root Cause Analysis. Activate immediately whenever the user inputs a text block containing compiler panics, stack traces, test framework failures, or execution log output.
+---
+
 # Diagnostic Log Triage & Root Cause Analysis
 
 ## Context

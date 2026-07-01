@@ -1,3 +1,8 @@
+---
+name: rust-paradigms
+description: Global Rust Architecture & Memory Safety. Use when working on Rust codebases, cargo configurations, or debugging borrow checker issues.
+---
+
 # Global Rust Architecture & Memory Safety
 
 ## Context

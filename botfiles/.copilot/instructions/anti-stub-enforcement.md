@@ -1,0 +1,1 @@
+../../.gemini/antigravity-cli/skills/anti-stub-enforcement/SKILL.md

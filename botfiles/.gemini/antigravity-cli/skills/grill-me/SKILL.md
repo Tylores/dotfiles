@@ -1,3 +1,8 @@
+---
+name: grill-me
+description: Interactive Skill: Grill Me (Socratic Stress-Test). Activate immediately when the user initiates a prompt with the explicit phrase "Grill me on..." or uses the command /grill.
+---
+
 # Interactive Skill: Grill Me (Socratic Stress-Test)
 
 ## Context

@@ -1,3 +1,8 @@
+---
+name: concise-planning
+description: Concise Checklist Planning. Activate automatically when the user asks for a plan, requests a feature scaffold, or passes a multi-file tracking task.
+---
+
 # Concise Checklist Planning
 
 ## Context

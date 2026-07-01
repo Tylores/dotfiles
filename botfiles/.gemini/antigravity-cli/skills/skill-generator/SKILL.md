@@ -1,3 +1,8 @@
+---
+name: skill-generator
+description: Agent Skill Generator (Meta-Skill). Activate this skill automatically when the user issues commands containing phrases like: "generate a skill for", "create a skill for", "build a guardrail playbook for", or "make a skill for".
+---
+
 # Agent Skill Generator (Meta-Skill)
 
 ## Context

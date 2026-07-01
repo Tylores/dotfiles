@@ -1,3 +1,8 @@
+---
+name: algorithmic-rigor
+description: Algorithmic Rigor & Mathematical Invariants. Activate automatically when the user asks to implement, refactor, or debug optimization steps, convergence logic, state-space representations, or numerical components.
+---
+
 # Algorithmic Rigor & Mathematical Invariants
 
 ## Context

@@ -1,0 +1,1 @@
+../../.gemini/antigravity-cli/skills/git-rules/SKILL.md

@@ -1,3 +1,8 @@
+---
+name: go-paradigms
+description: Global Go (Golang) Architecture & Safety. Use when working on Go files, libraries, concurrent services, or compiling Go programs.
+---
+
 # Global Go (Golang) Architecture & Safety
 
 ## Context

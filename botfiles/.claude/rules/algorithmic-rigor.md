@@ -1,0 +1,1 @@
+../../.gemini/antigravity-cli/skills/algorithmic-rigor/SKILL.md

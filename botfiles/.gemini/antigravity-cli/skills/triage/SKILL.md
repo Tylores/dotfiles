@@ -1,3 +1,8 @@
+---
+name: triage
+description: Global Triage & Diagnostics Protocol. Whenever the user passes a stack trace, error message, failing test result, or asks to "identify an issue".
+---
+
 # Global Triage & Diagnostics Protocol
 
 ## Trigger
