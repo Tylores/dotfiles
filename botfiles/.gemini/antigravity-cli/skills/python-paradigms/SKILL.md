@@ -1,12 +1,15 @@
 ---
 name: python-paradigms
-description: Global Python Execution & Type Safety. Use when working on Python files, scripts, libraries, or virtual environments.
+description: "Global Python Execution & Type Safety."
 ---
 
 # Global Python Execution & Type Safety
 
 ## Context
 The user writes modular, high-throughput Python applications. Code must prioritize explicit configuration, type safety, and clean resource boundaries.
+
+## Trigger Conditions
+Use when working on Python files, scripts, libraries, or virtual environments.
 
 ## Directives
 

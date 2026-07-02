@@ -1,6 +1,6 @@
 ---
 name: token-saver
-description: Context Minimizer & Hunk Diff Protocol. Activate automatically whenever the agent is displaying file changes, refactoring code blocks, or performing file comparisons.
+description: "Context Minimizer & Hunk Diff Protocol."
 ---
 
 # Context Minimizer & Hunk Diff Protocol

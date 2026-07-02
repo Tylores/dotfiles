@@ -1,6 +1,6 @@
 ---
 name: teach-me
-description: Interactive Skill: Teach Me (Feynman Breakdown). Activate immediately when the user initiates a prompt with "Teach me..." or uses the command /teach.
+description: "Interactive Skill: Teach Me (Feynman Breakdown)."
 ---
 
 # Interactive Skill: Teach Me (Feynman Breakdown)

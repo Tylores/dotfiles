@@ -1,6 +1,6 @@
 ---
 name: anti-stub-enforcement
-description: Strict Implementation & Anti-Stub Policy. Activate whenever the agent is formatting a patch file, generating code blocks, or refactoring existing modules.
+description: "Strict Implementation & Anti-Stub Policy."
 ---
 
 # Strict Implementation & Anti-Stub Policy

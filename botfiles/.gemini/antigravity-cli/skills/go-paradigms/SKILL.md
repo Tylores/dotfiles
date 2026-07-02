@@ -1,12 +1,15 @@
 ---
 name: go-paradigms
-description: Global Go (Golang) Architecture & Safety. Use when working on Go files, libraries, concurrent services, or compiling Go programs.
+description: "Global Go (Golang) Architecture & Safety."
 ---
 
 # Global Go (Golang) Architecture & Safety
 
 ## Context
 The user writes highly concurrent, performance-critical Go services. Code must be idiomatic, strictly typed, and completely thread-safe.
+
+## Trigger Conditions
+Use when working on Go files, libraries, concurrent services, or compiling Go programs.
 
 ## Directives
 

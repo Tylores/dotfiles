@@ -1,12 +1,15 @@
 ---
 name: rust-paradigms
-description: Global Rust Architecture & Memory Safety. Use when working on Rust codebases, cargo configurations, or debugging borrow checker issues.
+description: "Global Rust Architecture & Memory Safety."
 ---
 
 # Global Rust Architecture & Memory Safety
 
 ## Context
 The user writes highly efficient, memory-safe, and concurrent Rust systems. Code must be deeply idiomatic, leverage the type system defensively, and pass the borrow checker without lazy performance bypasses.
+
+## Trigger Conditions
+Use when working on Rust codebases, cargo configurations, or debugging borrow checker issues.
 
 ## Directives
 
