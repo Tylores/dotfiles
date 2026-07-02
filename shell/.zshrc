@@ -3,6 +3,10 @@ export EDITOR="nvim"
 export VISUAL="nvim"
 export LANG="C.UTF-8"
 
+## --- Aliases ---
+alias c="clear"
+alias ll="ls -lahF --color=always"
+
 # --- History Configuration ---
 HISTFILE="$HOME/.zsh_history"
 HISTSIZE=10000
