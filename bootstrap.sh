@@ -363,12 +363,89 @@ setup_starship() {
     curl -sS https://starship.rs/install.sh | sh -s -- --yes --bin-dir "$HOME/.local/bin"
 }
 
+setup_docker() {
+    info "Setting up Docker..."
+    if command -v docker >/dev/null 2>&1; then
+        echo "  - Docker is already installed ($(docker --version))"
+        return 0
+    fi
+
+    if command -v brew >/dev/null 2>&1; then
+        brew install docker docker-compose
+    elif command -v apt-get >/dev/null 2>&1; then
+        info "Setting up Docker official APT repository..."
+        sudo apt-get update
+        sudo apt-get install -y ca-certificates curl
+        
+        sudo install -m 0755 -d /etc/apt/keyrings
+        local os_id
+        os_id=$(. /etc/os-release && echo "${ID:-ubuntu}")
+        
+        # Force debian or ubuntu as os_id for GPG key download
+        if [ "$os_id" != "debian" ] && [ "$os_id" != "ubuntu" ]; then
+            if [ -f /etc/debian_version ]; then
+                os_id="debian"
+            else
+                os_id="ubuntu"
+            fi
+        fi
+
+        curl -fsSL "https://download.docker.com/linux/${os_id}/gpg" | sudo tee /etc/apt/keyrings/docker.asc > /dev/null
+        sudo chmod a+r /etc/apt/keyrings/docker.asc
+
+        local codename
+        codename=$(. /etc/os-release && echo "${VERSION_CODENAME:-}")
+        if [ -z "$codename" ]; then
+            codename=$(. /etc/os-release && echo "${UBUNTU_CODENAME:-}")
+        fi
+        if [ -z "$codename" ]; then
+            codename=$(lsb_release -cs 2>/dev/null || echo "")
+        fi
+        if [ -z "$codename" ]; then
+            if [ "$os_id" = "debian" ]; then
+                codename="bookworm"
+            else
+                codename="noble"
+            fi
+        fi
+
+        echo \
+          "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/${os_id} \
+          ${codename} stable" | \
+          sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+        
+        sudo apt-get update
+        info "Installing Docker packages..."
+        sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+        
+        if ! getent group docker >/dev/null; then
+            sudo groupadd docker || true
+        fi
+        info "Adding user to the docker group..."
+        sudo usermod -aG docker "$USER"
+        info "Note: You will need to log out and back in for group changes to take effect."
+    elif command -v pacman >/dev/null 2>&1; then
+        info "Installing Docker via Pacman..."
+        sudo pacman -S --noconfirm docker docker-compose
+        sudo systemctl enable --now docker.service
+        if ! getent group docker >/dev/null; then
+            sudo groupadd docker || true
+        fi
+        info "Adding user to the docker group..."
+        sudo usermod -aG docker "$USER"
+        info "Note: You will need to log out and back in for group changes to take effect."
+    else
+        echo "  Warning: Docker installation is not supported on this platform, skipping."
+    fi
+}
+
 install_fonts
 setup_go
 setup_python_tools
 setup_rust
 setup_agent_clis
 setup_starship
+setup_docker
 
 # 6. Suggest changing default shell to zsh if currently on something else
 if [[ "${SHELL:-}" != *"zsh"* ]]; then
