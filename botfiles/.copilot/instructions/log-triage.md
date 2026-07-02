@@ -1,1 +1,0 @@
-../../.gemini/antigravity-cli/skills/log-triage/SKILL.md

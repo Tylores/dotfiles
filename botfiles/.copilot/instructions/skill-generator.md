@@ -1,1 +1,0 @@
-../../.gemini/antigravity-cli/skills/skill-generator/SKILL.md

@@ -1,1 +1,0 @@
-../../.gemini/antigravity-cli/skills/concise-planning/SKILL.md

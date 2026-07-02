@@ -1,1 +1,0 @@
-../../.gemini/antigravity-cli/skills/rust-paradigms/SKILL.md
