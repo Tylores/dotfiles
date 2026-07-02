@@ -59,6 +59,15 @@ done
 # Tokyo Night (Default / Dark Night):
 export ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=#565f89,italic"
 
+# --- Path & Environment Config ---
+# NOTE: Path additions (specifically ~/.local/bin where starship is installed)
+# must be declared before prompt/tool configurations that run command-availability checks.
+export PATH="$PATH:/usr/local/go/bin"
+
+. "$HOME/.local/bin/env"
+export PATH="$PATH:$HOME/.local/bin"
+source "$HOME/.cargo/env"
+
 # --- Prompt Configuration ---
 # Initialize Starship prompt with Tokyo Night styling
 if command -v starship >/dev/null 2>&1; then
@@ -69,8 +78,3 @@ fi
 if [ -f "$HOME/.zshrc.local" ]; then
     source "$HOME/.zshrc.local"
 fi
-export PATH="$PATH:/usr/local/go/bin"
-
-. "$HOME/.local/bin/env"
-export PATH="$PATH:$HOME/.local/bin"
-source "$HOME/.cargo/env"
