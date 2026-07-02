@@ -1,1 +1,0 @@
-../../.gemini/antigravity-cli/skills/go-paradigms/SKILL.md
