@@ -1,34 +1,18 @@
-# dotfiles
-Dead-Simple Machine Provisioning
+# Core Architecture & Development Workflows
 
-## Structure
-The standard config structure and bonus `botfiles` that include agent skill and config information.
+This repository manages a terminal-centric engineering environment. The architecture deliberately avoids heavy, background-orchestrated abstraction layers in favor of explicit, file-based configurations and crisp tool boundaries.
+
+## System Ecosystem & Package Layout
+The workspace is fully modularized and symlinked to the `$HOME` root using **GNU Stow**. 
 
 ```text
 ~/dotfiles/
-├── bin/
-│   └── .local/
-│       └── bin/
-│           └── scry
-├── gh/
-│   └── .config/
-│       └── gh/
-├── git/
-│   └── .gitconfig
-├── nvim/
-│   └── .config/
-│       └── nvim/
-│           └── init.lua
-├── shell/
-│   └── .zshrc
-├── tmux/
-│   └── .tmux.conf
-└── botfiles/
-    └── .gemini/
-        └── config/
-            └── skills/
-                ├── triage.md
-                └── helics-core.md
+├── bootstrap.sh       # Central dependency installer & stow loop
+├── git/               # Git configs, aliases, and global ignores
+├── nvim/              # Neovim lua configuration (IDE layer)
+├── tmux/              # Tmux session management and window rules
+├── shell/             # Zsh core profile configurations
+└── botfiles/          # AI Agent operational skill playbooks
 ```
 
 ## Bootstrap
