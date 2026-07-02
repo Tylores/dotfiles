@@ -1,0 +1,8 @@
+# GitHub CLI authentication secrets
+hosts.yml
+*hosts.yml
+
+# General editor backups and OS cache
+*.swp
+*~
+.DS_Store
