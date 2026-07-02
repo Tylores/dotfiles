@@ -1,6 +1,9 @@
 ---
 name: go-paradigms
 description: "Global Go (Golang) Architecture & Safety."
+paths:
+  - "**/*.go"
+applyTo: "**/*.go"
 ---
 
 # Global Go (Golang) Architecture & Safety

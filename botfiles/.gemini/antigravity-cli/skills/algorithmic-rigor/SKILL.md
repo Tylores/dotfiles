@@ -1,6 +1,9 @@
 ---
 name: algorithmic-rigor
 description: "Algorithmic Rigor & Mathematical Invariants."
+paths:
+  - "**"
+applyTo: "**"
 ---
 
 # Algorithmic Rigor & Mathematical Invariants

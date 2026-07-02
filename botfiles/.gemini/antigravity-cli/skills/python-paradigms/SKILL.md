@@ -1,6 +1,9 @@
 ---
 name: python-paradigms
 description: "Global Python Execution & Type Safety."
+paths:
+  - "**/*.py"
+applyTo: "**/*.py"
 ---
 
 # Global Python Execution & Type Safety

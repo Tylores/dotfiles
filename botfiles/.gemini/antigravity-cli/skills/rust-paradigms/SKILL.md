@@ -1,6 +1,9 @@
 ---
 name: rust-paradigms
 description: "Global Rust Architecture & Memory Safety."
+paths:
+  - "**/*.rs"
+applyTo: "**/*.rs"
 ---
 
 # Global Rust Architecture & Memory Safety

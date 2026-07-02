@@ -1,6 +1,9 @@
 ---
 name: token-saver
 description: "Context Minimizer & Hunk Diff Protocol."
+paths:
+  - "**"
+applyTo: "**"
 ---
 
 # Context Minimizer & Hunk Diff Protocol

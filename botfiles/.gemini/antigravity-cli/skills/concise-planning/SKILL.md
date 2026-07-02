@@ -1,6 +1,9 @@
 ---
 name: concise-planning
 description: Concise Checklist Planning.
+paths:
+  - "**"
+applyTo: "**"
 ---
 
 # Concise Checklist Planning
