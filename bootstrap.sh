@@ -200,7 +200,7 @@ DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$DOTFILES_DIR"
 
 info "Applying symlink trees via GNU Stow..."
-STOW_PACKAGES=(git tmux nvim botfiles gh bin shell)
+STOW_PACKAGES=(git tmux nvim botfiles gh bin shell starship)
 
 for package in "${STOW_PACKAGES[@]}"; do
     if [ -d "$package" ]; then
@@ -351,11 +351,24 @@ setup_agent_clis() {
     fi
 }
 
+setup_starship() {
+    info "Setting up Starship..."
+    if command -v starship >/dev/null 2>&1; then
+        echo "  - Starship is already installed ($(starship --version | head -n 1))"
+        return 0
+    fi
+    
+    info "Installing Starship..."
+    mkdir -p "$HOME/.local/bin"
+    curl -sS https://starship.rs/install.sh | sh -s -- --yes --bin-dir "$HOME/.local/bin"
+}
+
 install_fonts
 setup_go
 setup_python_tools
 setup_rust
 setup_agent_clis
+setup_starship
 
 # 6. Suggest changing default shell to zsh if currently on something else
 if [[ "${SHELL:-}" != *"zsh"* ]]; then

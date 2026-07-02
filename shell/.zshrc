@@ -59,6 +59,12 @@ done
 # Tokyo Night (Default / Dark Night):
 export ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=#565f89,italic"
 
+# --- Prompt Configuration ---
+# Initialize Starship prompt with Tokyo Night styling
+if command -v starship >/dev/null 2>&1; then
+    eval "$(starship init zsh)"
+fi
+
 # --- Sourcing Local Overrides ---
 if [ -f "$HOME/.zshrc.local" ]; then
     source "$HOME/.zshrc.local"

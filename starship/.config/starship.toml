@@ -1,0 +1,94 @@
+# Starship configuration matching Tokyo Night palette
+
+# Custom format layout
+format = """
+$username\
+$hostname\
+$directory\
+$git_branch\
+$git_state\
+$git_status\
+$package\
+$golang\
+$rust\
+$nodejs\
+$python\
+$line_break\
+$character"""
+
+# Disable blank line at prompt start
+add_newline = false
+
+palette = "tokyonight"
+
+[palettes.tokyonight]
+tokyonight_bg = "#1a1b26"
+tokyonight_blue = "#7aa2f7"
+tokyonight_cyan = "#7dcfff"
+tokyonight_green = "#9ece6a"
+tokyonight_magenta = "#bb9af7"
+tokyonight_orange = "#ff9e64"
+tokyonight_red = "#f7768e"
+tokyonight_yellow = "#e0af68"
+tokyonight_comment = "#565f89"
+tokyonight_fg = "#c0caf5"
+
+[character]
+success_symbol = "[❯](bold tokyonight_magenta)"
+error_symbol = "[❯](bold tokyonight_red)"
+vicmd_symbol = "[❮](bold tokyonight_green)"
+
+[directory]
+style = "bold tokyonight_blue"
+read_only = " 󰌾"
+read_only_style = "bold tokyonight_red"
+
+[git_branch]
+symbol = " "
+style = "bold tokyonight_magenta"
+format = "on [$symbol$branch]($style) "
+
+[git_status]
+style = "bold tokyonight_yellow"
+format = "([\\[$all_status$ahead_behind\\]]($style) )"
+conflicted = "󰞇 "
+ahead = "⇡"
+behind = "⇣"
+diverged = "⇕"
+untracked = "? "
+stashed = "$ "
+modified = "! "
+staged = "+ "
+renamed = "» "
+deleted = "✘ "
+
+[golang]
+symbol = " "
+style = "bold tokyonight_cyan"
+format = "via [$symbol($version )]($style)"
+
+[rust]
+symbol = " "
+style = "bold tokyonight_orange"
+format = "via [$symbol($version )]($style)"
+
+[nodejs]
+symbol = " "
+style = "bold tokyonight_green"
+format = "via [$symbol($version )]($style)"
+
+[python]
+symbol = " "
+style = "bold tokyonight_yellow"
+format = "via [$symbol($version )]($style)"
+
+[username]
+style_user = "bold tokyonight_yellow"
+style_root = "bold tokyonight_red"
+format = "[$user]($style) "
+disabled = true
+
+[hostname]
+style = "bold tokyonight_orange"
+format = "[$hostname]($style) "
+disabled = true
