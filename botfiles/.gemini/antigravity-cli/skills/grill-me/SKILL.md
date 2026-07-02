@@ -1,6 +1,9 @@
 ---
 name: grill-me
 description: "Interactive Skill: Grill Me (Socratic Stress-Test)."
+paths:
+  - "**"
+applyTo: "**"
 ---
 
 # Interactive Skill: Grill Me (Socratic Stress-Test)

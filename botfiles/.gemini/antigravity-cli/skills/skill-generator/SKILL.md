@@ -1,6 +1,9 @@
 ---
 name: skill-generator
 description: Agent Skill Generator (Meta-Skill).
+paths:
+  - "**"
+applyTo: "**"
 ---
 
 # Agent Skill Generator (Meta-Skill)

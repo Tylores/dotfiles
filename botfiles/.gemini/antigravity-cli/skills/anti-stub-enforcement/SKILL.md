@@ -1,6 +1,9 @@
 ---
 name: anti-stub-enforcement
 description: "Strict Implementation & Anti-Stub Policy."
+paths:
+  - "**"
+applyTo: "**"
 ---
 
 # Strict Implementation & Anti-Stub Policy

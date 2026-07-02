@@ -1,6 +1,9 @@
 ---
 name: triage
 description: "Global Triage & Diagnostics Protocol."
+paths:
+  - "**"
+applyTo: "**"
 ---
 
 # Global Triage & Diagnostics Protocol

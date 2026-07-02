@@ -1,6 +1,9 @@
 ---
 name: log-triage
 description: "Diagnostic Log Triage & Root Cause Analysis."
+paths:
+  - "**"
+applyTo: "**"
 ---
 
 # Diagnostic Log Triage & Root Cause Analysis

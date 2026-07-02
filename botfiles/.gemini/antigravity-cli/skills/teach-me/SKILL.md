@@ -1,6 +1,9 @@
 ---
 name: teach-me
 description: "Interactive Skill: Teach Me (Feynman Breakdown)."
+paths:
+  - "**"
+applyTo: "**"
 ---
 
 # Interactive Skill: Teach Me (Feynman Breakdown)
