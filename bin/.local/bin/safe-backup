@@ -1,0 +1,79 @@
+#!/usr/bin/env bash
+#
+# safe-backup - Safely back up files/directories that would conflict with GNU Stow mapping.
+#
+# Usage: safe-backup <target-paths...>
+#
+
+set -euo pipefail
+
+# Text formatting helper functions
+BOLD="$(tput bold 2>/dev/null || echo '')"
+YELLOW="$(tput setaf 3 2>/dev/null || echo '')"
+RESET="$(tput sgr0 2>/dev/null || echo '')"
+
+warn() { echo -e "${BOLD}${YELLOW}==> WARNING:${RESET} ${BOLD}$*${RESET}"; }
+
+is_under_symlink() {
+    local path="$1"
+    local parent
+    parent="$(dirname "$path")"
+    while [ "$parent" != "$HOME" ] && [ "$parent" != "/" ] && [ "$parent" != "." ]; do
+        if [ -L "$parent" ]; then
+            return 0
+        fi
+        parent="$(dirname "$parent")"
+    done
+    return 1
+}
+
+safe_backup() {
+    local target="$1"
+
+    # If it doesn't exist, nothing to do
+    if [ ! -e "$target" ] && [ ! -L "$target" ]; then
+        return 0
+    fi
+
+    # If it is a symlink, stow --restow will handle it natively
+    if [ -L "$target" ]; then
+        return 0
+    fi
+
+    # If it is under a symlink, do not modify it (already managed/stowed)
+    if is_under_symlink "$target"; then
+        return 0
+    fi
+
+    # Check if it is a shared directory we must not move
+    if [ -d "$target" ]; then
+        case "$target" in
+            "$HOME"|"$HOME/.config"|"$HOME/.local"|"$HOME/.local/bin"|"$HOME/.gemini"|"$HOME/.claude"|"$HOME/.copilot")
+                return 0
+                ;;
+        esac
+
+        # Prevent nested directories if .bak folder already exists
+        if [ -e "${target}.bak" ] || [ -L "${target}.bak" ]; then
+            rm -rf "${target}.bak"
+        fi
+        warn "Found existing local directory at $target. Moving to ${target}.bak"
+        mv "$target" "${target}.bak"
+    elif [ -f "$target" ]; then
+        if [ -e "${target}.bak" ] || [ -L "${target}.bak" ]; then
+            rm -rf "${target}.bak"
+        fi
+        warn "Found existing local file at $target. Moving to ${target}.bak"
+        mv "$target" "${target}.bak"
+    fi
+}
+
+if [ "$#" -eq 0 ]; then
+    echo "Usage: safe-backup <target-paths...>" >&2
+    exit 1
+fi
+
+for arg in "$@"; do
+    # Resolve paths to absolute paths
+    safe_backup "$(realpath "$arg")"
+done
