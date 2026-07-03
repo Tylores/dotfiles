@@ -147,10 +147,17 @@ if tmux has-session -t "${target_session}" 2>/dev/null; then
 fi
 
 if [[ ${session_exists} -eq 0 ]]; then
-  # Create new session
-  tmux new-session -d -s "${target_session}" -c "${target_path}"
+  # Create new session with the first window named 'editor'
+  tmux new-session -d -s "${target_session}" -n "editor" -c "${target_path}"
+  # Run Neovim inside the editor window
+  tmux send-keys -t "${target_session}:editor" "nvim" C-m
+  # Create second window named 'agent'
+  tmux new-window -t "${target_session}" -n "agent" -c "${target_path}"
+  # Create third window named 'shell'
+  tmux new-window -t "${target_session}" -n "shell" -c "${target_path}"
+  # Ensure focus starts on the 'editor' window
+  tmux select-window -t "${target_session}:editor"
   tmux set-option -t "${target_session}" mouse on
-  tmux rename-window -t "${target_session}:" "${target_folder}"
 fi
 
 # Attach or switch

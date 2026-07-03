@@ -202,7 +202,7 @@ STOW_PACKAGES=(git tmux nvim botfiles gh bin shell starship)
 for package in "${STOW_PACKAGES[@]}"; do
     if [ -d "$package" ]; then
         info "Stowing config layer: [$package]"
-        stow --target="$HOME" --restow "$package"
+        stow --target="$HOME" --no-folding --restow "$package"
     else
         echo "  Warning: Package folder '$package' not found in repository root, skipping."
     fi
