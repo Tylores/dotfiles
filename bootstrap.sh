@@ -7,9 +7,65 @@ set -euo pipefail
 # Define text modifiers for clean logging output
 BOLD="$(tput bold 2>/dev/null || echo '')"
 GREEN="$(tput setaf 2 2>/dev/null || echo '')"
+YELLOW="$(tput setaf 3 2>/dev/null || echo '')"
 RESET="$(tput sgr0 2>/dev/null || echo '')"
 
 info() { echo -e "${BOLD}${GREEN}==>${RESET} ${BOLD}$*${RESET}"; }
+warn() { echo -e "${BOLD}${YELLOW}==> WARNING:${RESET} ${BOLD}$*${RESET}"; }
+
+is_under_symlink() {
+    local path="$1"
+    local parent
+    parent="$(dirname "$path")"
+    while [ "$parent" != "$HOME" ] && [ "$parent" != "/" ] && [ "$parent" != "." ]; do
+        if [ -L "$parent" ]; then
+            return 0
+        fi
+        parent="$(dirname "$parent")"
+    done
+    return 1
+}
+
+safe_backup() {
+    local target="$1"
+
+    # If it doesn't exist, nothing to do
+    if [ ! -e "$target" ] && [ ! -L "$target" ]; then
+        return 0
+    fi
+
+    # If it is a symlink, stow --restow will handle it natively
+    if [ -L "$target" ]; then
+        return 0
+    fi
+
+    # If it is under a symlink, do not modify it (already managed/stowed)
+    if is_under_symlink "$target"; then
+        return 0
+    fi
+
+    # Check if it is a shared directory we must not move
+    if [ -d "$target" ]; then
+        case "$target" in
+            "$HOME"|"$HOME/.config"|"$HOME/.local"|"$HOME/.local/bin"|"$HOME/.gemini"|"$HOME/.claude"|"$HOME/.copilot")
+                return 0
+                ;;
+        esac
+
+        # Prevent nested directories if .bak folder already exists
+        if [ -e "${target}.bak" ] || [ -L "${target}.bak" ]; then
+            rm -rf "${target}.bak"
+        fi
+        warn "Found existing local directory at $target. Moving to ${target}.bak"
+        mv "$target" "${target}.bak"
+    elif [ -f "$target" ]; then
+        if [ -e "${target}.bak" ] || [ -L "${target}.bak" ]; then
+            rm -rf "${target}.bak"
+        fi
+        warn "Found existing local file at $target. Moving to ${target}.bak"
+        mv "$target" "${target}.bak"
+    fi
+}
 
 # 1. Detect Operating System & Package Manager
 info "Detecting system environment..."
@@ -201,6 +257,20 @@ cd "$DOTFILES_DIR"
 
 info "Applying symlink trees via GNU Stow..."
 STOW_PACKAGES=(git tmux nvim botfiles gh bin shell starship)
+
+# Run safety checks on existing configurations before stowing
+info "Running safety checks on existing configs..."
+for package in "${STOW_PACKAGES[@]}"; do
+    if [ -d "$package" ]; then
+        (
+            cd "$package"
+            find . -mindepth 1 | while read -r rel_path; do
+                rel_path="${rel_path#./}"
+                safe_backup "$HOME/$rel_path"
+            done
+        )
+    fi
+done
 
 for package in "${STOW_PACKAGES[@]}"; do
     if [ -d "$package" ]; then
