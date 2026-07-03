@@ -7,6 +7,8 @@
 
 set -euo pipefail
 
+DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
+
 # Text formatting helper functions
 BOLD="$(tput bold 2>/dev/null || echo '')"
 YELLOW="$(tput setaf 3 2>/dev/null || echo '')"
@@ -35,8 +37,21 @@ safe_backup() {
         return 0
     fi
 
-    # If it is a symlink, stow --restow will handle it natively
+    # If it is a symlink, check if it is a relative link pointing inside the dotfiles repository
     if [ -L "$target" ]; then
+        local link_target
+        link_target="$(readlink "$target")"
+        if [[ "$link_target" != /* ]] && [[ "$(readlink -f "$target" 2>/dev/null)" == "$DOTFILES_DIR"* ]]; then
+            # Safe relative symlink managed by stow
+            return 0
+        fi
+        
+        # Conflicting absolute or external symlink, back it up
+        if [ -e "${target}.bak" ] || [ -L "${target}.bak" ]; then
+            rm -rf "${target}.bak"
+        fi
+        warn "Found conflicting symlink at $target. Moving to ${target}.bak"
+        mv "$target" "${target}.bak"
         return 0
     fi
 
@@ -74,6 +89,11 @@ if [ "$#" -eq 0 ]; then
 fi
 
 for arg in "$@"; do
-    # Resolve paths to absolute paths
-    safe_backup "$(realpath "$arg")"
+    # Resolve to absolute path without following symlinks
+    if [[ "$arg" = /* ]]; then
+        abs_path="$arg"
+    else
+        abs_path="$PWD/$arg"
+    fi
+    safe_backup "$abs_path"
 done
