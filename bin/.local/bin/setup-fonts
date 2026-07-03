@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+BOLD="$(tput bold 2>/dev/null || echo '')"
+GREEN="$(tput setaf 2 2>/dev/null || echo '')"
+RESET="$(tput sgr0 2>/dev/null || echo '')"
+
+info() { echo -e "${BOLD}${GREEN}==>${RESET} ${BOLD}$*${RESET}"; }
+
+info "Installing JetBrainsMono Nerd Font..."
+font_dir=""
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    font_dir="$HOME/Library/Fonts"
+else
+    font_dir="$HOME/.local/share/fonts"
+fi
+mkdir -p "$font_dir"
+
+if [ -f "$font_dir/JetBrainsMonoNerdFont-Regular.ttf" ] || [ -f "$font_dir/JetBrains Mono Regular Nerd Font Complete.ttf" ]; then
+    echo "  - JetBrainsMono Nerd Font is already installed"
+    exit 0
+fi
+
+temp_dir="$(mktemp -d)"
+if curl -fLo "$temp_dir/JetBrainsMono.zip" "https://github.com/ryanoasis/nerd-fonts/releases/download/v3.2.1/JetBrainsMono.zip"; then
+    unzip -q "$temp_dir/JetBrainsMono.zip" -d "$temp_dir"
+    find "$temp_dir" -name "*.ttf" -exec cp {} "$font_dir/" \;
+    rm -rf "$temp_dir"
+    
+    if [[ "$OSTYPE" != "darwin"* ]]; then
+        fc-cache -fv >/dev/null 2>&1 || true
+    fi
+    info "JetBrainsMono Nerd Font installed successfully."
+else
+    echo "  Warning: Failed to download JetBrainsMono Nerd Font, skipping."
+    rm -rf "$temp_dir"
+fi

@@ -1,0 +1,50 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+BOLD="$(tput bold 2>/dev/null || echo '')"
+GREEN="$(tput setaf 2 2>/dev/null || echo '')"
+RESET="$(tput sgr0 2>/dev/null || echo '')"
+
+info() { echo -e "${BOLD}${GREEN}==>${RESET} ${BOLD}$*${RESET}"; }
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+DOTFILES_DIR="$(cd "$SCRIPT_DIR/../../.." && pwd)"
+
+append_to_rc() {
+    local line="$1"
+    local desc="$2"
+    
+    for rc in "$HOME/.bashrc" "$HOME/.zshrc"; do
+        if [ -f "$rc" ] || { [ "$(basename "$rc")" = ".zshrc" ] && [ -d "$DOTFILES_DIR/shell" ]; }; then
+            touch "$rc"
+            if ! grep -Fq "$line" "$rc"; then
+                echo "$line" >> "$rc"
+                info "Added $desc to $rc."
+            fi
+        fi
+    done
+}
+
+info "Setting up Go..."
+if command -v go >/dev/null 2>&1; then
+    echo "  - Go is already installed ($(go version))"
+    exit 0
+fi
+
+if command -v brew >/dev/null 2>&1; then
+    brew install go
+else
+    go_version="1.25.6"
+    info "Downloading and installing Go v${go_version}..."
+    temp_tar="$(mktemp)"
+    if curl -fLo "$temp_tar" "https://go.dev/dl/go${go_version}.linux-amd64.tar.gz"; then
+        sudo rm -rf /usr/local/go
+        sudo tar -C /usr/local -xzf "$temp_tar"
+        rm -f "$temp_tar"
+        
+        append_to_rc 'export PATH="$PATH:/usr/local/go/bin"' "/usr/local/go/bin"
+    else
+        echo "  Warning: Failed to download Go, skipping."
+        rm -f "$temp_tar"
+    fi
+fi

@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+BOLD="$(tput bold 2>/dev/null || echo '')"
+GREEN="$(tput setaf 2 2>/dev/null || echo '')"
+RESET="$(tput sgr0 2>/dev/null || echo '')"
+
+info() { echo -e "${BOLD}${GREEN}==>${RESET} ${BOLD}$*${RESET}"; }
+
+info "Setting up Starship..."
+if command -v starship >/dev/null 2>&1; then
+    echo "  - Starship is already installed ($(starship --version | head -n 1))"
+    exit 0
+fi
+
+info "Installing Starship..."
+mkdir -p "$HOME/.local/bin"
+curl -sS https://starship.rs/install.sh | sh -s -- --yes --bin-dir "$HOME/.local/bin"
