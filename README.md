@@ -7,7 +7,7 @@ The workspace is fully modularized and symlinked to the `$HOME` root using **GNU
 
 ```text
 ~/dotfiles/
-├── bootstrap.sh       # Central dependency installer & stow loop
+├── bootstrap          # Central dependency installer & stow loop
 ├── git/               # Git configs, aliases, and global ignores
 ├── nvim/              # Neovim lua configuration (IDE layer)
 ├── tmux/              # Tmux session management and window rules
@@ -20,12 +20,10 @@ The workspace is fully modularized and symlinked to the `$HOME` root using **GNU
 
 ```shell
 git clone git@github.com:Tylores/dotfiles.git ~/dotfiles
-cd ~/dotfiles && ./bootstrap.sh
+cd ~/dotfiles && ./bootstrap
 ```
 
 ## Safety & Conflict Handling
 
-The `bootstrap.sh` script runs non-destructive safety checks before stowing packages:
-* **Safe Backups**: If a target file or leaf configuration directory already exists at `$HOME` as a regular file/directory (and is not a symlink), it is moved to `<path>.bak`.
+The `bootstrap` script runs non-destructive safety checks before stowing packages:
 * **Symlink Tree Safety**: If a parent directory is already stowed, files under it are skipped to prevent modifying files within the dotfiles repository itself.
-* **Shared Folder Protection**: Shared parent directories (e.g. `.config`, `.local/bin`) are never backed up, only their package-specific contents.
