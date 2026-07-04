@@ -157,7 +157,6 @@ if [[ ${session_exists} -eq 0 ]]; then
   tmux new-window -t "${target_session}" -n "shell" -c "${target_path}"
   # Ensure focus starts on the 'editor' window
   tmux select-window -t "${target_session}:editor"
-  tmux set-option -t "${target_session}" mouse on
 fi
 
 # Attach or switch
