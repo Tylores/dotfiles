@@ -30,6 +30,9 @@ Draft the target content by rigorously populating these exact sections:
 
 ### 3. Direct Workspace Deployment
 * Do not merely dump the raw markdown to the terminal pane. 
-* Use file-writing tools to dynamically create the directory: `.agents/skills/<target-name>-bounds/` inside the active local project root.
-* Write the generated content directly into a clean `SKILL.md` file within that path.
+* Determine the deployment location:
+  - For **general-purpose skills**, save the skill directory to the shared dotfiles directory: `botfiles/.gemini/antigravity-cli/skills/<target-name>/` and write to `SKILL.md`.
+  - For **project-specific/API boundary guardrails**, create the directory `.agents/skills/<target-name>-bounds/` inside the active local project root and write to `SKILL.md`.
+* Write the generated content directly into a clean `SKILL.md` file within the chosen path.
 * Print a success confirmation summary in the terminal indicating the path where the file was written.
+
