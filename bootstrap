@@ -111,6 +111,7 @@ check_dep "fzf" "fzf" "fzf" "fzf"
 check_dep "pkg-config" "pkg-config" "pkg-config" "pkg-config"
 check_dep "gh" "gh" "gh" "github-cli"
 check_dep "zsh" "zsh" "zsh" "zsh"
+check_dep "pre-commit" "pre-commit" "pre-commit" "pre-commit"
 check_zsh_plugin "zsh-autosuggestions" "zsh-autosuggestions" "zsh-autosuggestions" "zsh-autosuggestions"
 check_zsh_plugin "zsh-syntax-highlighting" "zsh-syntax-highlighting" "zsh-syntax-highlighting" "zsh-syntax-highlighting"
 
