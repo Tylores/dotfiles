@@ -25,7 +25,6 @@ if [ "$needs_install" = "true" ]; then
         sudo apt-get install -y ca-certificates curl
         
         sudo install -m 0755 -d /etc/apt/keyrings
-        local os_id
         os_id=$(. /etc/os-release && echo "${ID:-ubuntu}")
         
         # Force debian or ubuntu as os_id for GPG key download
@@ -40,7 +39,6 @@ if [ "$needs_install" = "true" ]; then
         curl -fsSL "https://download.docker.com/linux/${os_id}/gpg" | sudo tee /etc/apt/keyrings/docker.asc > /dev/null
         sudo chmod a+r /etc/apt/keyrings/docker.asc
 
-        local codename
         codename=$(. /etc/os-release && echo "${VERSION_CODENAME:-}")
         if [ -z "$codename" ]; then
             codename=$(. /etc/os-release && echo "${UBUNTU_CODENAME:-}")
