@@ -235,8 +235,9 @@ if [[ "${SHELL:-}" != *"zsh"* ]]; then
     if command -v zsh >/dev/null 2>&1; then
         ZSH_PATH="$(command -v zsh)"
         info "Note: Your default shell is not set to zsh (current shell is $SHELL)."
-        info "To set zsh as your default shell, run:"
+        info "To set zsh as your default shell and switch over, run:"
         echo "  chsh -s $ZSH_PATH"
+        echo "  exec zsh"
     fi
 fi
 
