@@ -1,32 +1,19 @@
 # Agent Behavior Guidelines
 
-## Just-In-Time (JIT) Skill Activation Protocol
-You are strictly forbidden from eagerly loading domain or workflow skills at the start of a turn. Instead, you must evaluate and load skills reactively right before invoking a tool, matching these dynamic execution triggers:
+## Eager Session-Level Skill Activation Protocol
+To optimize reasoning efficiency, minimize tool-call roundtrips, and prevent parallel execution JIT duplication, you must eagerly load all relevant domain and workflow skills at the start of a session (the first turn of a conversation or immediately following a context clear).
 
-### 1. Dynamic Gateway Dispatcher (Resolution Protocol)
-Instead of a rigid mapping matrix, resolve and activate skills dynamically based on the action context:
+### 1. Eager Setup Scan
+At the start of the first turn:
+* Identify the languages, frameworks, and workflows relevant to the workspace and the user's task.
+* Load the matching skills (e.g. language paradigms, git rules) in the first turn using a single batch of `view_file` calls.
 
-* **File-Bound Triggers:**
-  * **Language-Specific:** When about to read or edit a file, dynamically match its extension to the corresponding language paradigms skill if available (e.g., `*.go` -> `go-paradigms`, `*.rs` -> `rust-paradigms`, `*.py` -> `python-paradigms`, `*.zsh` / `*.sh` -> `zsh-skills`).
-  * **Domain-Specific:** Scan the target file for library imports or framework keywords to match domain skills (e.g., imports containing `helics` -> `helics-blueprint`/`helics-bounds`; imports/references containing `dnp3` -> `stepfunc-dnp3-blueprint`/`stepfunc-dnp3-bounds`; references to `oedisi` -> `oedisi-blueprint`/`oedisi-components-bounds`).
-* **Tool-Bound Triggers:**
-  * Match CLI command prefixes or tool names directly to workflow skills (e.g., commands starting with `git ` -> `git-rules`; large text file edits or modifications -> `token-saver`).
-* **Interactive/Context Triggers:**
-  * Match user commands or interaction modes to interactive skills (e.g., `/plan` -> `concise-planning`, `/grill-me` -> `grill-me`, `/learn` -> `teach-me`).
+### 2. Context Retention
+* Once loaded, do not call `view_file` on these skills again during the same session, as their content is preserved in the active conversation history context.
 
-### 2. Deduplication & Context Awareness
-To minimize context bloat and prevent redundant operations:
-* **Check Conversation History:** Before calling `view_file` on a resolved skill, verify if the skill's instructions are already loaded in the conversation history of the current session.
-* **Skip Reloading:** If the skill is already present in the context, do NOT call `view_file` again and do NOT print a duplicate JIT activation attestation log.
+### 3. Agent Candor & Constructive Pushback
+* **De-escalate Over-Engineering**: If a user request, system prompt, or rule set introduces excessive procedural complexity, cognitive overhead, or brittle behaviors (like JIT gating or excessive logging rules), you are encouraged to raise these concerns, present the trade-offs honestly, and propose simpler, more robust alternatives.
 
-### 3. Execution Pipeline (The JIT Gate)
-Immediately before invoking any tool (excluding `view_file` calls targeting a skill's `SKILL.md` file to prevent recursive activation loops):
-1. **Audit:** Determine if the tool, command, or target file matches any dynamic trigger.
-2. **Deduplicate:** Check if the matched skill is already present in the active conversation context.
-3. **Load:** If NOT already present, execute `view_file` on the corresponding `<skill-name>/SKILL.md` file. Once loaded, proceed directly to executing the original target tool in the next step.
-4. **Log Attestation:** Print a single-line indicator to the console output immediately before the tool execution:
-   `[JIT Activation: skill-name bound to tool-action]`
-5. **Execute:** Run the target tool.
 
 ## Multi-Turn Isolation & Command Chaining Ban
 * **The Turn-2 Reset:** You must treat every single user prompt as a brand-new authorization boundary. A successful execution on a previous turn does NOT grant you implicit permission to execute downstream actions autonomously.
