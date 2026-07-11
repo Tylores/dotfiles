@@ -13,6 +13,8 @@ This skill governs the development, modification, and verification of co-simulat
 
 OEDISI components are containerized HELICS federates wrapped in a FastAPI server executing REST actions. The co-simulation orchestrates value exchanges across federates under the coordination of a central broker.
 
+* **Live Documentation Reference**: If you encounter advanced or undocumented OEDISI component or orchestrator needs, inspect the openEDI GitHub repository at `https://github.com/openEDI/oedisi`.
+
 ---
 
 ## Trigger Conditions
@@ -33,23 +35,26 @@ Every component must follow this directory layout:
 - `Dockerfile`: Container image definition, exposing a unique TCP port, running standard FastAPI server.
 - `pyproject.toml`: Modern packaging containing dependencies (`helics>=3.4.0`, `fastapi`, `uvicorn`, `oedisi~=3.0`), with console script endpoint mapped to `<package>.server:main`.
 - `mypy.ini` & `pytest.ini`: Configured for typing and testing.
-- `src/<package_name>/`: Contains `__init__.py`, `server.py` (FastAPI), and `<federate_logic>.py` (HELICS simulation logic).
+- `src/<package_name>/`: Contains `__init__.py`, `server.py` (FastAPI), `schemas.py` (Pydantic configurations), and `<federate_logic>.py` (HELICS simulation logic).
 - `tests/`: Component-level test suites containing unit/integration tests.
 
-### 2. FastAPI Interface Lifecycle
+### 2. FastAPI Interface Lifecycle & Configuration Validation
 Each component's server (`server.py`) must implement and expose three standard REST endpoints:
 - `GET /`: Health check returning a `HeathCheck` object with `hostname` and `host_ip`.
-- `POST /configure`: Receives a configuration payload, writes `input_mapping.json` and `static_inputs.json` to the filesystem.
+- `POST /configure`: Receives a configuration payload, validates it using a strict Pydantic model at startup, and writes `input_mapping.json` and `static_inputs.json` to the filesystem.
 - `POST /run`: Accepts `BrokerConfig`, triggers the simulator background task using `BackgroundTasks.add_task`, and immediately returns `{"status": "running"}`.
 
 ### 3. Simulation Logic & HELICS Lifecycle
 The simulation entry point (`run_simulator(broker_config)`) must strictly follow this HELICS sequence:
-1. **Config Read**: Read `static_inputs.json` and `input_mapping.json` from the filesystem.
+1. **Config Validation**: Load and validate configuration inputs (`static_inputs.json`, `input_mapping.json`) using Pydantic models.
 2. **Federate Init**: Create value federate (`helicsCreateValueFederate`).
 3. **Register I/O**: Register subscriptions and publications mapping to `input_mapping.json`.
 4. **Time Request Loop**: Enters execution mode and requests times sequentially via `helicsFederateRequestTime`.
+   - **Boundary Check**: Exit loop if `granted_time > end_time` (or matches `HELICS_TIME_MAXTIME`).
+   - **Iterative Limits**: If using iterative updates, implement a local iteration counter (limit to 50 or 100) to prevent algebraic loop deadlocks.
 5. **Data Handling**: On every timestep, retrieve subscriptions, deserialize JSON into OEDISI Pydantic types, perform logic, serialize, and publish outputs.
-6. **Cleanup**: Call `helicsFederateDisconnect` on completion or failure to clean up HELICS handles.
+6. **Thread Exception Wrapping**: The entire simulator background thread body must run in a `try-except Exception` block, logging unhandled exceptions with full stack traces (`logger.exception`) to stderr.
+7. **Cleanup**: Guaranteed cleanup calling `helicsFederateDisconnect`, `helicsFederateFree`, and `helicsCloseLibrary` inside a `finally` block to prevent zombie processes.
 
 ---
 
