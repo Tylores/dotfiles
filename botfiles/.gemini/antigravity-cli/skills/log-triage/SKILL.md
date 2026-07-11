@@ -24,5 +24,9 @@ Activate immediately whenever the user inputs a text block containing compiler p
 * **Omit Success Telemetry:** Completely strip out routine initialization messages, heartbeats, status updates, or successful test indicators from your analysis display.
 * **Focus on Context Changes:** Look for the precise moment where a variable state or environment flag changed immediately preceding the failure.
 
-### 3. Provide an Actionable Remedy
+### 3. Chronological & Multi-Thread Correlation
+* **Time-correlation Analysis**: For multi-component systems, line up timestamps across different service logs to find the chain of events leading to the failure.
+* **Group Redundant Signatures**: Group repeated error sequences or identical trace signatures together to isolate the base systemic failure from secondary cascade failures.
+
+### 4. Provide an Actionable Remedy
 * Do not just restate the error message. Provide a concise explanation of *why* the failure occurred based on the log architecture, followed by the exact code modification or shell command required to fix it.

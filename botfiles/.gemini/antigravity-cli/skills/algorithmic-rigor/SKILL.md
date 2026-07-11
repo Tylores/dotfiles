@@ -27,3 +27,8 @@ Activate automatically when the user asks to implement, refactor, or debug optim
 ### 3. Convergence & Termination Safety
 * **Max Iteration Caps:** Every iterative loop or solver routine proposed must include a strict maximum iteration exit condition to prevent infinite background executions.
 * **Tolerance Scaling:** Ensure numerical tolerances are parameterized rather than hardcoded into the loop.
+
+### 4. Floating-Point & Numeric Safety Guidelines
+* **Floating-Point Comparison**: Never use direct comparison `==` for floating point numbers. Always use an absolute epsilon `abs(a - b) < epsilon` or relative tolerance threshold.
+* **Overflow / Underflow Protection**: For recursive, scaling, or accumulative mathematical routines, explicitly analyze and guard against potential integer/float overflows and underflows.
+* **Time & Space Complexity**: For any custom algorithm, specify the Big O complexity ($O(N)$, $O(\log N)$, etc.) to ensure algorithmic efficiency.

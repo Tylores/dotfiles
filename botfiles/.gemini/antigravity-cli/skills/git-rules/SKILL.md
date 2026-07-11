@@ -53,6 +53,29 @@ Before proposing any commit message, you MUST evaluate the `git diff --cached` c
 1.  **Detect Overlap:** Check if the staged code contains changes across more than ONE architectural layer simultaneously.
 2.  **Raise Violation:** If mixing is detected (e.g., Layer 1 definition mixed with Layer 2 application loops, or Layer 2 logic mixed with Layer 3 unit tests), you MUST prepend a highly visible **`[WARNING: LAYER MIXING DETECTED]`** header to your output.
 3.  **Provide Split Guidance:** Stop the commit process. List which files/lines belong to which layer, and output the exact `git restore --staged` or `gitsigns` patch guidance the user needs to run to strip out the offending lines.
+### 5. Commit & Branch Integration Protocol (User-Led Flow)
+To support the user's preference to manually inspect, copy-paste, and run Git commands, the agent must adhere to the following workflow for all workspace changes:
+* **Provide Clear, Copy-Pasteable Command Blocks**: Instead of executing Git commands autonomously, prioritize generating exact, copy-pasteable shell command blocks.
+  * **Staging & Committing**:
+    ```bash
+    git add <files>
+    git commit -m "<type>(<scope>): <description>"
+    ```
+  * **Branch Management**:
+    ```bash
+    git checkout -b <branch-name>
+    ```
+  * **Rebasing / Upstream Alignment**:
+    ```bash
+    git fetch origin
+    git rebase origin/main
+    ```
+  * **Pushing (Always with Safety)**:
+    ```bash
+    git push origin <branch-name> --force-with-lease
+    ```
+* **Explicit Fallback Option**: Always include a concise note below the command block stating that the user can copy and run the commands, or ask the agent to execute them (e.g., *"You can copy and run these commands, or simply reply with 'Run these' to have me execute them on your behalf"*).
+* **Atomic Step Division**: Never combine unrelated Git commands (e.g., staging and pushing) into a single line unless they are logically coupled. Present them as separate steps to let the user execute them at their own pace.
 
 ## Hard Constraints (Banned Actions)
 * **CRITICAL:** Do not use or suggest raw `--force` flags under any circumstances. Always use `--force-with-lease` if a remote tracking branch must be overridden.
@@ -60,5 +83,5 @@ Before proposing any commit message, you MUST evaluate the `git diff --cached` c
 * **CRITICAL:** Do not stage modified configuration properties (`*.toml`, `*.json`) alongside code enhancements unless they are explicitly required for the code to compile.
 
 ## Verification Protocol
-1. **Commit Dry-Run:** Before committing code on behalf of the user, output the exact planned commit command string to the chat window for visual inspection.
-2. **Lint Validation:** If the repository utilizes local verification layers (like `husky`, `commitlint`, or pre-commit hooks), the agent must run or verify against those hooks before declaring a repository state as clean.
+1. **Lint Validation**: If the repository utilizes local verification layers (like `husky`, `commitlint`, or pre-commit hooks), run or verify against those hooks before declaring a repository state as clean.
+2. **Layer Isolation Check**: Always perform the Layer Verification Protocol (Layer 1, 2, 3 overlap detection) before presenting any commit message.
