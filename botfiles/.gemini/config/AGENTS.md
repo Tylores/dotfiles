@@ -20,10 +20,10 @@ To minimize context bloat and prevent redundant operations:
 * **Skip Reloading:** If the skill is already present in the context, do NOT call `view_file` again and do NOT print a duplicate JIT activation attestation log.
 
 ### 3. Execution Pipeline (The JIT Gate)
-Immediately before invoking any tool:
+Immediately before invoking any tool (excluding `view_file` calls targeting a skill's `SKILL.md` file to prevent recursive activation loops):
 1. **Audit:** Determine if the tool, command, or target file matches any dynamic trigger.
 2. **Deduplicate:** Check if the matched skill is already present in the active conversation context.
-3. **Load:** If NOT already present, execute `view_file` on the corresponding `<skill-name>/SKILL.md` file.
+3. **Load:** If NOT already present, execute `view_file` on the corresponding `<skill-name>/SKILL.md` file. Once loaded, proceed directly to executing the original target tool in the next step.
 4. **Log Attestation:** Print a single-line indicator to the console output immediately before the tool execution:
    `[JIT Activation: skill-name bound to tool-action]`
 5. **Execute:** Run the target tool.
