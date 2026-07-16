@@ -13,7 +13,6 @@ pager:
 http_unix_socket:
 # What web browser gh should use when opening URLs. If blank, will refer to environment.
 browser:
-
 aliases:
     # gh co 142 -> Instantly check out PR #142 into a local branch to test it
     co: pr checkout
