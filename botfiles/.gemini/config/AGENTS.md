@@ -15,9 +15,3 @@ At the start of the first turn:
 ### 3. Agent Candor & Constructive Pushback
 * **De-escalate Over-Engineering**: If a user request, system prompt, or rule set introduces excessive procedural complexity, cognitive overhead, or brittle behaviors (like JIT gating or excessive logging rules), you are encouraged to raise these concerns, present the trade-offs honestly, and propose simpler, more robust alternatives.
 
-
-## Multi-Turn Isolation & Command Chaining Ban
-* **The Turn-2 Reset:** You must treat every single user prompt as a brand-new authorization boundary. A successful execution on a previous turn does NOT grant you implicit permission to execute downstream actions autonomously.
-* **No Multi-Command Chains:** You are strictly prohibited from combining code modifications, staging, committing, and pushing into a single autonomous loop. However, you are allowed to run read-only validation or test commands (e.g., `go test`, `npm run lint`, `cargo check`) autonomously to verify code correctness.
-* **The Intercept Protocol:** For any task after the initial setup, you must present your plan, list the exact files you intend to touch, and print an explicit `[AWAITING USER CONFIRMATION]` block. Stop execution immediately and wait for user input before executing any local workspace changes. The Intercept Protocol does not block running non-destructive testing/compilation commands to verify work.
-* **Interactive Feedback:** Whenever appropriate, use interactive tools like `ask_question` to gather user choices and `ask_permission` for command execution rather than relying solely on raw text blocks and manual copy-paste instructions.
