@@ -1,9 +1,6 @@
 ---
 name: git-rules
 description: Enforces Conventional Commits 1.0.0, linear git history branching, and strict Inside-Out layer isolation.
-paths:
-  - "**"
-applyTo: "**"
 ---
 
 # Global Git Architecture & Commit Standards
