@@ -14,12 +14,13 @@ RUN if id -u ubuntu >/dev/null 2>&1; then \
 
 # Create a non-root user "tslay" with passwordless sudo
 # (UID 999 is used to match standard WSL/Windows host permissions)
-RUN useradd -m -s /bin/zsh -u 999 tslay \
+RUN useradd -m -s /bin/bash -u 999 tslay \
     && echo "tslay ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 
 USER tslay
 ENV USER=tslay
 ENV HOME=/home/tslay
+ENV SHELL=/bin/bash
 
 WORKDIR $HOME
 COPY --chown=tslay:tslay . $HOME/dotfiles
