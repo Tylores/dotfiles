@@ -23,6 +23,6 @@ ENV HOME=/home/tslay
 ENV SHELL=/bin/bash
 
 WORKDIR $HOME
-COPY --chown=tslay:tslay . $HOME/dotfiles
+RUN git clone https://github.com/Tylores/dotfiles.git $HOME/dotfiles
 
 CMD ["/bin/bash"]
