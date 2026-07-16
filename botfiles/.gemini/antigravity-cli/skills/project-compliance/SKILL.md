@@ -9,7 +9,7 @@ applyTo: "**"
 # Project Compliance Audit & Context
 
 ## Context
-This skill empowers the agent to act as a compliance auditor, scanning legacy or active codebases to verify they conform to the user's active paradigm skills (e.g., `git-rules`, `anti-stub-enforcement`, `rust-paradigms`, `go-paradigms`, `python-paradigms`, etc.). The review must be agent-driven, using the active guidelines as an inspection checklist, and prioritizing scalability on large codebases.
+This skill empowers the agent to act as a compliance auditor, scanning legacy or active codebases to verify they conform to the user's active paradigm skills (e.g., `git-rules`, `rust-paradigms`, `go-paradigms`, `python-paradigms`, etc.). The review must be agent-driven, using the active guidelines as an inspection checklist, and prioritizing scalability on large codebases.
 
 ## Trigger Conditions
 Activate this skill when the user requests a compliance review, paradigm audit, or codebase check (e.g., using phrases like "review this project for compliance", "run a paradigm audit", "check if this project passes my bounds", "audit the codebase against active skills").
