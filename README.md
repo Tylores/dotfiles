@@ -33,3 +33,24 @@ The `bootstrap` script runs non-destructive safety checks before stowing package
 Deep-dives and keyboard guides for the principal layers of the development stack are available here:
 - **Tmux & Session Picker Guide**: [tmux/README.md](file:///home/tylor/dotfiles/tmux/README.md) details how the `scry` multi-window session engine is architected.
 - **Neovim & Motion Guide**: [nvim/README.md](file:///home/tylor/dotfiles/nvim/README.md) hosts the keybind cheat sheets for class/function jumps, page scrolling, and LSP actions.
+
+## Container Workflow
+
+### build and run
+
+```shell
+wslc run -it --name dev-box pde:latest
+```
+
+### stop
+
+```shell
+wslc stop dev-box
+```
+
+### start and connect
+
+```shell
+wslc start dev-box
+wslc exec -it dev-box /bin/zsh
+```
