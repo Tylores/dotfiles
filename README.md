@@ -39,6 +39,7 @@ Deep-dives and keyboard guides for the principal layers of the development stack
 ### build and run
 
 ```shell
+wslc build -t pde:latest .
 wslc run -it --name dev-box pde:latest
 ```
 
