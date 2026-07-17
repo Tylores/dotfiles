@@ -3,7 +3,8 @@ FROM ubuntu:latest
 RUN apt-get update && apt-get install -y \
     curl \
     git \
-    sudo
+    sudo \
+    zsh
 
 
 # Delete the default "ubuntu" user and group to free up UID/GID 1000
@@ -14,15 +15,16 @@ RUN if id -u ubuntu >/dev/null 2>&1; then \
 
 # Create a non-root user "tslay" with passwordless sudo
 # (UID 999 is used to match standard WSL/Windows host permissions)
-RUN useradd -m -s /bin/bash -u 999 tslay \
-    && echo "tslay ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+RUN useradd -m -s /bin/zsh -u 999 tslay \
+    && echo "tslay ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers \
+    && echo "tslay:1234" | chpasswd
 
 USER tslay
 ENV USER=tslay
 ENV HOME=/home/tslay
-ENV SHELL=/bin/bash
+ENV SHELL=/bin/zsh
 
 WORKDIR $HOME
 RUN git clone https://github.com/Tylores/dotfiles.git $HOME/dotfiles
 
-CMD ["/bin/bash"]
+CMD ["/bin/zsh"]
