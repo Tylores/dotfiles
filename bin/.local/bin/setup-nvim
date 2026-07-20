@@ -1,0 +1,60 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+BOLD="$(tput bold 2>/dev/null || echo '')"
+GREEN="$(tput setaf 2 2>/dev/null || echo '')"
+RESET="$(tput sgr0 2>/dev/null || echo '')"
+
+info() { echo -e "${BOLD}${GREEN}==>${RESET} ${BOLD}$*${RESET}"; }
+
+version_ge() {
+    local current="$1"
+    local required="$2"
+    [ "$(printf '%s\n' "$required" "$current" | sort -V | head -n1)" = "$required" ]
+}
+
+get_nvim_version() {
+    if ! command -v nvim >/dev/null 2>&1; then
+        return 1
+    fi
+    nvim --version | head -n1 | sed -E 's/^NVIM v([0-9]+\.[0-9]+\.[0-9]+).*/\1/'
+}
+
+required="0.12.0"
+current="$(get_nvim_version || true)"
+
+if [ -n "$current" ] && version_ge "$current" "$required"; then
+    echo "  - nvim $current is already installed"
+    exit 0
+fi
+
+if [ -n "$current" ]; then
+    info "Detected nvim $current, upgrading to >= $required..."
+else
+    info "Installing nvim >= $required..."
+fi
+
+if command -v brew >/dev/null 2>&1; then
+    brew install neovim
+elif command -v apt-get >/dev/null 2>&1; then
+    if ! command -v add-apt-repository >/dev/null 2>&1; then
+        sudo apt-get update
+        sudo apt-get install -y software-properties-common
+    fi
+    sudo add-apt-repository -y ppa:neovim-ppa/unstable
+    sudo apt-get update
+    sudo apt-get install -y neovim
+elif command -v pacman >/dev/null 2>&1; then
+    sudo pacman -S --noconfirm neovim
+else
+    echo "Error: Supported package manager not found (Brew, APT, or Pacman required)." >&2
+    exit 1
+fi
+
+installed="$(get_nvim_version || true)"
+if [ -z "$installed" ] || ! version_ge "$installed" "$required"; then
+    echo "Error: nvim version check failed. Required >= $required, found '${installed:-not installed}'." >&2
+    exit 1
+fi
+
+info "Neovim setup complete (v$installed)."

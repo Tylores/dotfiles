@@ -43,7 +43,7 @@ Deep-dives and keyboard guides for the principal layers of the development stack
 ```shell
 gh repo read-file -R Tylores/dotfiles Dockerfile -o .
 wslc build -t pde:latest .
-wslc run -it -v /var/run/docker.sock:/var/run/docker.sock --name dev-box pde:latest
+wslc run -it -v /var/run/docker.sock:/var/run/docker.sock --name dev-box --net=host pde:latest
 ```
 
 ### stop
