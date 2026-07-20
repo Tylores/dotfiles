@@ -1,10 +1,23 @@
-FROM ubuntu:latest
+FROM ubuntu:26.04
+
+ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && apt-get install -y \
+    ca-certificates \
     curl \
+    file \
     git \
+    iproute2 \
+    iputils-ping \
+    less \
+    locales \
+    man-db \
+    procps \
     sudo \
-    zsh
+    tzdata \
+    zsh \
+    && locale-gen en_US.UTF-8 \
+    && rm -rf /var/lib/apt/lists/*
 
 
 # Delete the default "ubuntu" user and group to free up UID/GID 1000
@@ -14,17 +27,20 @@ RUN if id -u ubuntu >/dev/null 2>&1; then \
     fi
 
 # Create a non-root user "tslay" with passwordless sudo
-# (UID 999 is used to match standard WSL/Windows host permissions)
-RUN useradd -m -s /bin/zsh -u 999 tslay \
-    && echo "tslay ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers \
-    && echo "tslay:1234" | chpasswd
+ARG USER_UID=1000
+ARG USER_GID=1000
+RUN groupadd --gid "${USER_GID}" tslay \
+    && useradd -m -s /bin/zsh --uid "${USER_UID}" --gid "${USER_GID}" tslay \
+    && echo "tslay ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 
 USER tslay
 ENV USER=tslay
 ENV HOME=/home/tslay
 ENV SHELL=/bin/zsh
+ENV LANG=en_US.UTF-8
+ENV LC_ALL=en_US.UTF-8
 
 WORKDIR $HOME
 RUN git clone https://github.com/Tylores/dotfiles.git $HOME/dotfiles
 
-CMD ["/bin/zsh"]
+CMD ["/bin/zsh", "-l"]
