@@ -1,0 +1,71 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+BOLD="$(tput bold 2>/dev/null || echo '')"
+GREEN="$(tput setaf 2 2>/dev/null || echo '')"
+YELLOW="$(tput setaf 3 2>/dev/null || echo '')"
+RESET="$(tput sgr0 2>/dev/null || echo '')"
+
+info() { echo -e "${BOLD}${GREEN}==>${RESET} ${BOLD}$*${RESET}"; }
+warn() { echo -e "${BOLD}${YELLOW}==> WARNING:${RESET} ${BOLD}$*${RESET}"; }
+
+DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
+SKILLS_DIR="$DOTFILES_DIR/botfiles/.gemini/antigravity-cli/skills"
+COPILOT_DIR="$DOTFILES_DIR/botfiles/.copilot/instructions"
+CLAUDE_DIR="$DOTFILES_DIR/botfiles/.claude/rules"
+
+if [ ! -d "$SKILLS_DIR" ]; then
+    echo "Error: skills directory not found: $SKILLS_DIR" >&2
+    exit 1
+fi
+
+mkdir -p "$COPILOT_DIR" "$CLAUDE_DIR"
+
+for link in "$COPILOT_DIR"/*.instructions.md; do
+    [ -L "$link" ] || continue
+    rm -f "$link"
+done
+
+for link in "$CLAUDE_DIR"/*.md; do
+    [ -L "$link" ] || continue
+    rm -f "$link"
+done
+
+mapped_count=0
+for skill_dir in "$SKILLS_DIR"/*; do
+    [ -d "$skill_dir" ] || continue
+    [ -f "$skill_dir/SKILL.md" ] || continue
+
+    skill_name="$(basename "$skill_dir")"
+    rel_target="../../.gemini/antigravity-cli/skills/$skill_name/SKILL.md"
+
+    copilot_link="$COPILOT_DIR/$skill_name.instructions.md"
+    claude_link="$CLAUDE_DIR/$skill_name.md"
+
+    if [ -e "$copilot_link" ] && [ ! -L "$copilot_link" ]; then
+        echo "Error: refusing to overwrite non-symlink file: $copilot_link" >&2
+        exit 1
+    fi
+    if [ -e "$claude_link" ] && [ ! -L "$claude_link" ]; then
+        echo "Error: refusing to overwrite non-symlink file: $claude_link" >&2
+        exit 1
+    fi
+
+    ln -sfn "$rel_target" "$copilot_link"
+    ln -sfn "$rel_target" "$claude_link"
+    mapped_count=$((mapped_count + 1))
+done
+
+if [ "$mapped_count" -eq 0 ]; then
+    warn "No skills with SKILL.md were found in $SKILLS_DIR"
+else
+    info "Mapped $mapped_count skills to Copilot and Claude instruction trees."
+fi
+
+if command -v stow >/dev/null 2>&1; then
+    if (cd "$DOTFILES_DIR" && stow --target="$HOME" --no-folding --restow botfiles >/dev/null 2>&1); then
+        info "Restowed botfiles package so home-level links match current skills."
+    else
+        warn "Could not restow botfiles package automatically; run: (cd \"$DOTFILES_DIR\" && stow --target=\"$HOME\" --no-folding --restow botfiles)"
+    fi
+fi

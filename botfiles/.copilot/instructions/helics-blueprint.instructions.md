@@ -1,0 +1,1 @@
+../../.gemini/antigravity-cli/skills/helics-blueprint/SKILL.md

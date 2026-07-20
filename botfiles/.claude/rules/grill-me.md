@@ -1,1 +1,0 @@
-../../.gemini/antigravity-cli/skills/grill-me/SKILL.md

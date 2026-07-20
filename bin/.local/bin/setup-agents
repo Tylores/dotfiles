@@ -8,6 +8,7 @@ RESET="$(tput sgr0 2>/dev/null || echo '')"
 info() { echo -e "${BOLD}${GREEN}==>${RESET} ${BOLD}$*${RESET}"; }
 
 info "Setting up Agent CLIs (Antigravity, Claude, and Copilot)..."
+DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
 
 # 1. Antigravity CLI (agy)
 if ! command -v agy >/dev/null 2>&1; then
@@ -36,3 +37,6 @@ if ! command -v copilot >/dev/null 2>&1; then
 else
     echo "  - GitHub Copilot CLI (copilot) is already installed ($(copilot --version 2>/dev/null || echo 'installed'))"
 fi
+
+info "Syncing mapped skills for Copilot and Claude..."
+"$DOTFILES_DIR/bin/.local/bin/sync-agent-skills"

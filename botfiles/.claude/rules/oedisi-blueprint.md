@@ -1,0 +1,1 @@
+../../.gemini/antigravity-cli/skills/oedisi-blueprint/SKILL.md

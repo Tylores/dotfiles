@@ -1,0 +1,1 @@
+../../.gemini/antigravity-cli/skills/oedisi-components-bounds/SKILL.md

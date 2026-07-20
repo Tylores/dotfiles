@@ -23,6 +23,8 @@ git clone git@github.com:Tylores/dotfiles.git ~/dotfiles
 cd ~/dotfiles && ./bootstrap
 ```
 
+Bootstrap also refreshes Copilot/Claude skill mappings from `botfiles/.gemini/antigravity-cli/skills/*/SKILL.md` so agent instruction links stay aligned with the current skill set.
+
 ## Safety & Conflict Handling
 
 The `bootstrap` script runs non-destructive safety checks before stowing packages:

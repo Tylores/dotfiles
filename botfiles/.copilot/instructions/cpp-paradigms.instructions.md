@@ -1,0 +1,1 @@
+../../.gemini/antigravity-cli/skills/cpp-paradigms/SKILL.md
