@@ -99,7 +99,6 @@ check_zsh_plugin() {
 
 check_dep "git" "git" "git" "git"
 check_dep "tmux" "tmux" "tmux" "tmux"
-check_dep "nvim" "neovim" "neovim" "neovim"
 check_dep "stow" "stow" "stow" "stow"
 check_dep "curl" "curl" "curl" "curl"
 check_dep "make" "make" "make" "make"
@@ -227,6 +226,7 @@ done
 
 # 5. Install Development Runtimes and Tools
 "$DOTFILES_DIR/bin/.local/bin/setup-fonts"
+"$DOTFILES_DIR/bin/.local/bin/setup-nvim"
 "$DOTFILES_DIR/bin/.local/bin/setup-go"
 "$DOTFILES_DIR/bin/.local/bin/setup-python"
 "$DOTFILES_DIR/bin/.local/bin/setup-rust"
