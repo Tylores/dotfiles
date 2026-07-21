@@ -1,0 +1,233 @@
+#!/usr/bin/env bash
+#
+# dev-clean - clean development caches and prep WSL disk compaction.
+#
+
+set -euo pipefail
+
+BOLD="$(tput bold 2>/dev/null || echo '')"
+GREEN="$(tput setaf 2 2>/dev/null || echo '')"
+YELLOW="$(tput setaf 3 2>/dev/null || echo '')"
+RESET="$(tput sgr0 2>/dev/null || echo '')"
+
+info() { echo -e "${BOLD}${GREEN}==>${RESET} ${BOLD}$*${RESET}"; }
+warn() { echo -e "${BOLD}${YELLOW}==> WARNING:${RESET} ${BOLD}$*${RESET}"; }
+
+usage() {
+    cat <<'EOF'
+Usage:
+  dev-clean [TARGET_DIR] [options]
+  dev-clean --target TARGET_DIR [options]
+
+Options:
+  --target <dir>          Target workspace root (default: $HOME/dev)
+  --dry-run               Show what would be removed without deleting
+  --docker                Run conservative Docker cleanup (default behavior)
+  --no-docker             Skip Docker cleanup
+  --docker-aggressive     Remove all unused Docker data, including volumes
+  --yes                   Skip interactive confirmation for aggressive Docker prune
+  -h, --help              Show this help
+
+Conservative Docker cleanup removes:
+  - stopped containers
+  - dangling images
+  - dangling build cache
+
+WSL compaction workflow:
+  1) Run dev-clean
+  2) From Windows PowerShell:
+       wsl --shutdown
+       Optimize-VHD -Path "<path-to-ext4.vhdx>" -Mode Full
+EOF
+}
+
+DRY_RUN=false
+DOCKER_MODE="conservative" # conservative | none | aggressive
+ASSUME_YES=false
+TARGET_DIR=""
+
+require_value() {
+    local flag="$1"
+    local value="$2"
+    if [ -z "$value" ]; then
+        echo "Error: $flag requires a value." >&2
+        exit 1
+    fi
+}
+
+run_cmd() {
+    if [ "$DRY_RUN" = "true" ]; then
+        echo "DRY RUN: $*"
+    else
+        "$@"
+    fi
+}
+
+confirm_or_exit() {
+    local prompt="$1"
+    if [ "$ASSUME_YES" = "true" ]; then
+        return 0
+    fi
+    read -r -p "$prompt [y/N]: " response
+    case "$response" in
+        y|Y|yes|YES) ;;
+        *)
+            echo "Cancelled."
+            exit 1
+            ;;
+    esac
+}
+
+remove_named_dirs() {
+    local label="$1"
+    shift
+    local names=("$@")
+    local found=0
+
+    info "Sweeping ${label}..."
+    for name in "${names[@]}"; do
+        while IFS= read -r -d '' dir; do
+            found=1
+            run_cmd rm -rf "$dir"
+        done < <(find "$TARGET_DIR" -mindepth 2 -maxdepth 4 -type d -name "$name" -print0)
+    done
+
+    if [ "$found" -eq 0 ]; then
+        echo "  - No matching directories found."
+    fi
+}
+
+parse_args() {
+    while [ "$#" -gt 0 ]; do
+        case "$1" in
+            --target)
+                require_value "$1" "${2:-}"
+                TARGET_DIR="$2"
+                shift 2
+                ;;
+            --dry-run)
+                DRY_RUN=true
+                shift
+                ;;
+            --docker)
+                DOCKER_MODE="conservative"
+                shift
+                ;;
+            --no-docker)
+                DOCKER_MODE="none"
+                shift
+                ;;
+            --docker-aggressive)
+                DOCKER_MODE="aggressive"
+                shift
+                ;;
+            --yes)
+                ASSUME_YES=true
+                shift
+                ;;
+            -h|--help)
+                usage
+                exit 0
+                ;;
+            -*)
+                echo "Error: unknown option: $1" >&2
+                usage
+                exit 1
+                ;;
+            *)
+                if [ -z "$TARGET_DIR" ]; then
+                    TARGET_DIR="$1"
+                else
+                    echo "Error: unexpected argument: $1" >&2
+                    usage
+                    exit 1
+                fi
+                shift
+                ;;
+        esac
+    done
+}
+
+clean_global_caches() {
+    info "Cleaning global toolchain caches..."
+    if command -v go >/dev/null 2>&1; then
+        run_cmd go clean -cache -modcache
+    else
+        echo "  - Skipping Go cache (go not installed)."
+    fi
+
+    if command -v pnpm >/dev/null 2>&1; then
+        run_cmd pnpm store prune
+    else
+        echo "  - Skipping pnpm store (pnpm not installed)."
+    fi
+
+    if command -v npm >/dev/null 2>&1; then
+        run_cmd npm cache clean --force
+    else
+        echo "  - Skipping npm cache (npm not installed)."
+    fi
+}
+
+clean_docker() {
+    if [ "$DOCKER_MODE" = "none" ]; then
+        info "Skipping Docker cleanup (--no-docker)."
+        return
+    fi
+
+    if ! command -v docker >/dev/null 2>&1; then
+        warn "Docker cleanup requested, but docker is not installed."
+        return
+    fi
+
+    if [ "$DOCKER_MODE" = "conservative" ]; then
+        info "Running conservative Docker cleanup..."
+        run_cmd docker container prune -f
+        run_cmd docker image prune -f
+        run_cmd docker builder prune -f
+        return
+    fi
+
+    warn "Aggressive Docker cleanup will remove ALL unused images, networks, and volumes."
+    confirm_or_exit "Continue with aggressive Docker prune?"
+    info "Running aggressive Docker cleanup..."
+    run_cmd docker system prune -a --volumes -f
+}
+
+trim_filesystem() {
+    if command -v fstrim >/dev/null 2>&1; then
+        info "Trimming filesystem sectors..."
+        if [ "$DRY_RUN" = "true" ]; then
+            echo "DRY RUN: sudo fstrim -av"
+        else
+            sudo fstrim -av
+        fi
+    else
+        warn "fstrim not found; skipping sector trim."
+    fi
+}
+
+main() {
+    parse_args "$@"
+    TARGET_DIR="${TARGET_DIR:-$HOME/dev}"
+
+    if [ ! -d "$TARGET_DIR" ]; then
+        echo "Error: directory does not exist: $TARGET_DIR" >&2
+        exit 1
+    fi
+
+    info "Starting workspace cleanup in: $TARGET_DIR"
+    echo "--------------------------------------------------"
+
+    clean_global_caches
+    remove_named_dirs "Rust target directories" "target"
+    remove_named_dirs "Python cache directories" "__pycache__" ".pytest_cache"
+    remove_named_dirs "TypeScript/Node build outputs" "dist" ".next" ".turbo"
+    clean_docker
+    trim_filesystem
+
+    echo "--------------------------------------------------"
+    info "Workspace cleanup complete."
+}
+
+main "$@"

@@ -36,6 +36,16 @@ Deep-dives and keyboard guides for the principal layers of the development stack
 - **Tmux & Session Picker Guide**: [tmux/README.md](file:///home/tylor/dotfiles/tmux/README.md) details how the `scry` multi-window session engine is architected.
 - **Neovim & Motion Guide**: [nvim/README.md](file:///home/tylor/dotfiles/nvim/README.md) hosts the keybind cheat sheets for class/function jumps, page scrolling, and LSP actions.
 
+## WSL cleanup before VHD compaction
+
+Use `dev-clean` to prune common development caches in `~/dev` (or a custom directory), run conservative Docker cleanup by default, and trim reclaimable filesystem sectors.
+
+```shell
+dev-clean
+```
+
+Use `--dry-run` to preview deletions, `--no-docker` to skip Docker pruning, and `--docker-aggressive` for full unused Docker data cleanup (includes volumes).
+
 ## Container Workflow
 
 ### build and run
