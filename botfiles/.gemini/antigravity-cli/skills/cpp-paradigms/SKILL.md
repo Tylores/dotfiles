@@ -1,14 +1,11 @@
 ---
 name: cpp-paradigms
-description: Modern C++ (C++17/C++20/C++23) Architecture, Memory Safety, and Best Practices.
-paths:
-  - "**/*.cpp"
-  - "**/*.hpp"
-  - "**/*.cc"
-  - "**/*.h"
-  - "**/*.cxx"
-  - "**/CMakeLists.txt"
-applyTo: "**/*.cpp"
+metadata:
+  category: SoftwareEngineering
+description: >-
+  Modern C++ (C++17/C++20/C++23) architecture, RAII resource safety, thread management,
+  type safety, and CMake best practices. Use when reading, writing, or editing C++ files
+  (*.cpp, *.hpp, *.cc, *.h, CMakeLists.txt).
 ---
 
 # C++ Paradigms & Context
@@ -69,3 +66,15 @@ Before declaring a change or fix complete:
    ```
 3. **Execute Unit Tests:** Run the test suite (e.g., `ctest --test-dir build` or direct executable invocation) to verify that no functional regressions were introduced.
 4. **Sanitizer Checks:** If compiling with sanitizers (ASan, UBSan, TSan), run tests to ensure no memory leaks, buffer overflows, or data races are flagged.
+
+## Quick Reference / Cheat Sheet
+
+Directive | Standard Pattern | Anti-Pattern
+--- | --- | ---
+Smart Allocation | `auto ptr = std::make_unique<T>();` | `T* ptr = new T();`
+Mutex Locking | `std::scoped_lock lock(m1, m2);` | `m1.lock(); m2.lock();`
+Type Casting | `static_cast<int>(val)` | `(int)val`
+String Parameters | `void print(std::string_view s)` | `void print(const char* s)`
+Container Choice | `std::array<int, 10>` or `std::vector<int>` | `int arr[10];`
+Header Namespace | Explicit namespace prefix `std::string` | `using namespace std;` in `.hpp`
+

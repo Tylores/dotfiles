@@ -1,9 +1,11 @@
 ---
 name: go-paradigms
-description: "Global Go (Golang) Architecture, Safety, and Best Practices."
-paths:
-  - "**/*.go"
-applyTo: "**/*.go"
+metadata:
+  category: SoftwareEngineering
+description: >-
+  Enforces global Go (Golang) architecture, defensive concurrency, idiomatic error handling,
+  type safety, and memory hygiene. Use when reading, writing, or editing Go source files (*.go),
+  tests, or go.mod configuration.
 ---
 
 # Global Go (Golang) Architecture & Safety
@@ -44,3 +46,15 @@ Activated automatically when reading, writing, or editing Go source files (`*.go
 * **Table-Driven Tests**: Write Go-standard table-driven tests for complex logic. Use `t.Run()` for executing subtests.
 * **Assert Helpers**: Keep assert helper functions simple, and call `t.Helper()` inside them to print correct file/line numbers on test failures.
 * **Mock Isolation**: Keep dependencies interfaces minimal (single-method interfaces where possible, e.g. `io.Reader`) to enable simple, local mock implementations rather than giant global mock generators.
+
+## Quick Reference / Cheat Sheet
+
+Directive | Standard Pattern | Anti-Pattern
+--- | --- | ---
+Error Handling | `if err != nil { return fmt.Errorf("task failed: %w", err) }` | `if err != nil { return err }` / ignoring error
+Error Check | `errors.Is(err, os.ErrNotExist)` | `err == os.ErrNotExist`
+Concurrency | `go func() { defer wg.Done(); ... }()` | Fire-and-forget `go func()`
+Context | `ctx, cancel := context.WithTimeout(ctx, d); defer cancel()` | Unbounded operations without `ctx`
+Struct Init | `Config{Port: 8080, Host: "localhost"}` | Unkeyed `Config{8080, "localhost"}`
+Race Check | `go test -race ./...` | Running tests without race detector
+

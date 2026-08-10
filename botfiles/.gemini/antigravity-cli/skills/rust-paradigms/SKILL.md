@@ -1,9 +1,11 @@
 ---
 name: rust-paradigms
-description: "Global Rust Architecture, Memory Safety, and Concurrency."
-paths:
-  - "**/*.rs"
-applyTo: "**/*.rs"
+metadata:
+  category: SoftwareEngineering
+description: >-
+  Enforces global Rust architecture, memory safety, zero-cost lifetime abstractions, defensive
+  error handling, and async concurrency. Use when reading, writing, or editing Rust source files (*.rs),
+  tests, or Cargo.toml configuration.
 ---
 
 # Global Rust Architecture & Memory Safety
@@ -42,3 +44,15 @@ Activated automatically when reading, writing, or editing Rust source files (`*.
 ### 5. Testing & Verification
 * **Test Isolation**: Utilize `cargo test` framework. Keep unit tests in the same module file within `mod tests` blocks, and integration tests in the `tests/` directory.
 * **Document Testing**: Provide compile-checked examples inside doc comments using `/// ```rust ... ``` ` to serve as both documentation and tests.
+
+## Quick Reference / Cheat Sheet
+
+Directive | Standard Pattern | Anti-Pattern
+--- | --- | ---
+Error Propagation | `let val = fallible_op()?;` | `.unwrap()` or `.expect()` in production
+Slice Parameters | `fn process(items: &[u8])` | `fn process(items: &Vec<u8>)`
+Async Blocking | `tokio::task::spawn_blocking(move || ...)` | Synchronous I/O directly in async block
+Extract Struct Value | `std::mem::take(&mut field)` | Cloning large struct to extract field
+Pattern Extraction | `let Some(v) = opt else { return; };` | Nested `if opt.is_some() { ... }`
+Unsafe Policy | Banned unless explicitly requested | Indiscriminate `unsafe { ... }`
+

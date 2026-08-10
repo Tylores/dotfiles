@@ -1,22 +1,23 @@
 ---
 name: project-compliance
-description: Review a project based on applicable skills and project context.
-paths:
-  - "**"
-applyTo: "**"
+metadata:
+  category: QualityAndCompliance
+description: >-
+  Audits codebases against active language paradigms, git rules, and cloud infrastructure skills.
+  Use when the user requests a compliance review, paradigm audit, or codebase check.
 ---
 
 # Project Compliance Audit & Context
 
 ## Context
-This skill empowers the agent to act as a compliance auditor, scanning legacy or active codebases to verify they conform to the user's active paradigm skills (e.g., `git-rules`, `rust-paradigms`, `go-paradigms`, `python-paradigms`, etc.). The review must be agent-driven, using the active guidelines as an inspection checklist, and prioritizing scalability on large codebases.
+This skill empowers the agent to act as a compliance auditor, scanning legacy or active codebases to verify they conform to the user's active paradigm skills (e.g., `git-rules`, `rust-paradigms`, `go-paradigms`, `python-paradigms`, `gcloud`, etc.). The review must be agent-driven, using the active guidelines as an inspection checklist, and prioritizing scalability on large codebases.
 
 ## Trigger Conditions
 Activate this skill when the user requests a compliance review, paradigm audit, or codebase check (e.g., using phrases like "review this project for compliance", "run a paradigm audit", "check if this project passes my bounds", "audit the codebase against active skills").
 
 ## Core Directives & Lifecycle Invariants
 1. **Technology & Skill Mapping**: Scan the project structure and configuration files (e.g., `Cargo.toml`, `go.mod`, `requirements.txt`, `.git`, `helics.json`, etc.) to auto-detect active languages, frameworks, and tools.
-2. **Retrieve Guidelines**: Map the detected technologies to the corresponding active paradigm skills in `botfiles/.gemini/antigravity-cli/skills/` (and any local/project-specific bounds).
+2. **Retrieve Guidelines**: Map the detected technologies to the corresponding active paradigm skills in `~/.gemini/config/skills/` (and any local `.agents/skills/`).
 3. **Scoped Inspection**: To prevent token exhaustion in large codebases, prioritize auditing entry points, public API boundaries, and recent modifications first. If necessary, use subagents in a divide-and-conquer structure to review module-by-module to prevent context/token limits.
 4. **Agent-Driven Gap Analysis**: Run static inspections and semantic checks against the loaded skills' hard constraints and core directives. Look for common violations such as anti-patterns, stubs, improper Git commit styles, or violated lifecycle invariants.
 5. **Generate Compliance Report**: Output a structured Markdown report in the conversation or as a workspace artifact (e.g., `project_compliance_report.md`):
@@ -32,3 +33,13 @@ Activate this skill when the user requests a compliance review, paradigm audit, 
 ## Verification & Triage Protocol
 1. Verify that all links in the generated report point to valid files and lines.
 2. Ensure any proposed remediation diff is syntax-valid and addresses the specific paradigm violation.
+
+## Quick Reference / Cheat Sheet
+
+Workflow Step | Action
+--- | ---
+1. Stack Scan | Detect `Cargo.toml`, `go.mod`, `pyproject.toml`, `Dockerfile`, `CMakeLists.txt`
+2. Guideline Match | Map detected stack to matching skills in `~/.gemini/config/skills/`
+3. Audit Execution | Check API boundaries, error handling, typing, and safety invariants
+4. Output Report | Generate `project_compliance_report.md` artifact with severity & line links
+

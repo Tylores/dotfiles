@@ -1,9 +1,11 @@
 ---
 name: python-paradigms
-description: "Global Python Execution, Type Safety, and Modern Best Practices."
-paths:
-  - "**/*.py"
-applyTo: "**/*.py"
+metadata:
+  category: SoftwareEngineering
+description: >-
+  Enforces global Python execution, type safety, deterministic resource cleanup,
+  defensive error handling, and modern best practices. Use when writing, reviewing,
+  or refactoring Python code (*.py), tests, pyproject.toml, or virtual environments.
 ---
 
 # Global Python Execution & Type Safety
@@ -51,3 +53,15 @@ Activated automatically when reading, writing, or editing Python source files (`
   * If `poetry.lock` is present, always use `poetry` commands.
   * If `requirements.txt` is present, use standard `pip` within a virtual environment.
 * **Declarative Configuration**: Define dependencies, metadata, and tool settings in `pyproject.toml` (following PEP 518 / PEP 621) rather than legacy `setup.py` or multiple standalone config files.
+
+## Quick Reference / Cheat Sheet
+
+Directive | Standard Pattern | Anti-Pattern
+--- | --- | ---
+Type Hints | `def func(val: int | None) -> list[str]:` | `def func(val=None):`
+Default Args | `def func(data: list[str] | None = None):` | `def func(data=[]):`
+Resource Cleanup | `with open(p) as f:` or `async with session:` | `f = open(p)` (no cleanup)
+Exceptions | `raise CustomError("msg") from err` | `except Exception: pass`
+Async Offloading | `await asyncio.to_thread(sync_func)` | Blocking call in `async def`
+Dependency Execution | `uv run pytest` / `poetry run pytest` | Unscoped global python execution
+
